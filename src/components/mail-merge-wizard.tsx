@@ -67,7 +67,7 @@ const mockDataFile = {
     { TIPO_COMP: 'Factura', RUC: '1792566436001', RAZON_SOCIAL_EMISOR: 'ALTIDAT S A', SERIE_COMPROBANTE: '001-001-000028142', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
     { TIPO_COMP: 'Factura', RUC: '1792566436001', RAZON_SOCIAL_EMISOR: 'ALTIDAT S A', SERIE_COMPROBANTE: '001-001-000028143', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
     { TIPO_COMP: 'Factura', RUC: '1792566436001', RAZON_SOCIAL_EMISOR: 'ALTIDAT S A', SERIE_COMPROBANTE: '001-001-000028353', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
-    { TIPO_COMP: 'Factura', RUC: '1792566436001', RAZON_SOCIAL_EMISOR: 'ALTIDAT S A', SERIE_COMPROBANTE: '001-001-000028357', OBSERVaciones: 'SIN RECIBIR EN CD ANULAR FACTURA' },
+    { TIPO_COMP: 'Factura', RUC: '1792566436001', RAZON_SOCIAL_EMISOR: 'ALTIDAT S A', SERIE_COMPROBANTE: '001-001-000028357', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
     { TIPO_COMP: 'Factura', RUC: '1792201160001', RAZON_SOCIAL_EMISOR: 'ASERTIA COMERCIAL S.A.', SERIE_COMPROBANTE: '001-006-001975480', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
     { TIPO_COMP: 'Factura', RUC: '1792201160001', RAZON_SOCIAL_EMISOR: 'ASERTIA COMERCIAL S.A.', SERIE_COMPROBANTE: '001-006-001964503', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
     { TIPO_COMP: 'Factura', RUC: '1792201160001', RAZON_SOCIAL_EMISOR: 'ASERTIA COMERCIAL S.A.', SERIE_COMPROBANTE: '001-023-000010655', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
@@ -209,7 +209,7 @@ export default function MailMergeWizard() {
   const [emailsFile, setEmailsFile] = useState(null);
   const [dataFile, setDataFile] = useState(null);
   const [mappings, setMappings] = useState({ emailRuc: '', emailAddress: '', dataRuc: '', dataFields: {} });
-  const [emailTemplate, setEmailTemplate] = useState('Estimados señores de {{NOMBRE}},\n\nPor medio de la presente, solicitamos su ayuda con la anulación de las siguientes facturas ante el SRI.\n\nA continuación, el detalle de los comprobantes y el motivo de la anulación:\n\n{{invoice_details}}\n\nAgradecemos de antemano su gestión.\n\nSaludos cordiales,\nEl Equipo de MailMergeXLS');
+  const [emailTemplate, setEmailTemplate] = useState('Estimados señores de {{NOMBRE}},\n\nPor medio de la presente, nos dirigimos a ustedes con el fin de solicitar la anulación de los siguientes comprobantes registrados en el SRI.\n\nEl motivo de la presente solicitud de anulación, junto con el detalle de los comprobantes, se encuentra a continuación:\n\n{{RAZON_SOCIAL_EMISOR}} | {{RUC}}\n\n{{invoice_details}}\n\nAgradecemos de antemano su pronta gestión y colaboración.\n\nSaludos cordiales,\n\nVinicio Velastegui\nContabilidad RM');
   const [commonStructures, setCommonStructures] = useState('Solicitud de anulación. Anular facturas SRI. Motivo de anulación.');
   const [isGenerating, setIsGenerating] = useState(false);
   const [previews, setPreviews] = useState([]);
