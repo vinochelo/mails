@@ -178,7 +178,7 @@ export default function MailMergeWizard() {
             body = body.replace(placeholder, String(value));
           });
           
-          const invoiceDetails = rows.map(row => `- Comprobante: ${row.SERIE_COMPROBANTE} (${row.TIPO_COMP}). ${row.OBSERVACIONES}`).join('\n');
+          const invoiceDetails = rows.map(row => `  • ${row.TIPO_COMP} ${row.SERIE_COMPROBANTE}: ${row.OBSERVACIONES}`).join('\n');
           body = body.replace(/\{\{invoice_details\}\}/g, invoiceDetails);
           
           // Then, replace placeholders from email file
