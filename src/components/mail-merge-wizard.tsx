@@ -148,7 +148,7 @@ export default function MailMergeWizard() {
   const [isParsingEmails, setIsParsingEmails] = useState(false);
   const [isParsingData, setIsParsingData] = useState(false);
   const [mappings, setMappings] = useState({ emailRuc: '', emailAddress: '', dataRuc: '' });
-  const [emailTemplate, setEmailTemplate] = useState('Estimados señores de {{NOMBRE}},\n\nPor medio de la presente, nos dirigimos a ustedes con el fin de solicitar la anulación de los siguientes comprobantes registrados en el SRI.\n\nEl motivo de la presente solicitud de anulación, junto con el detalle de los comprobantes, se encuentra a continuación:\n\n{{RAZON_SOCIAL_EMISOR}} | {{RUC}}\n\n{{invoice_details}}\n\nAgradecemos de antemano su pronta gestión y colaboración.\n\nSaludos cordiales,\n\nVinicio Velastegui\nContabilidad RM');
+  const [emailTemplate, setEmailTemplate] = useState('Estimados señores de {{NOMBRE}},\n\nPor medio de la presente, nos dirigimos a ustedes con el fin de solicitar la anulación de los siguientes comprobantes registrados en el SRI.\n\nEl motivo de la presente solicitud de anulación, junto con el detalle de los comprobantes, se encuentra a continuación:\n\n{{RAZON_SOCIAL_EMISOR}} | {{RUC}}\n\n{{invoice_details}}\n\nAgradecemos de antemano su pronta gestión y colaboración.\n\nSaludos cordiales,\n\nVinicio Velastegui\nContabilidad        \nQuito - Ecuador\nTelf: 023976200 / 022945950 Ext: 1405\nVinicio.velastegui@modarm.com');
   const [commonStructures, setCommonStructures] = useState('Solicitud de anulación. Anular facturas SRI. Motivo de anulación.');
   const [isGenerating, setIsGenerating] = useState(false);
   const [previews, setPreviews] = useState<{ to: string, body: string, recipient: string }[]>([]);
@@ -259,7 +259,6 @@ export default function MailMergeWizard() {
         }, {} as Record<string, any[]>);
 
         const generatedPreviews = Object.entries(dataByRuc).map(([ruc, rows]) => {
-          const to = emailMap.get(ruc) || 'Correo no encontrado';
           let body = emailTemplate;
           
           const firstRow = rows[0];
@@ -273,6 +272,7 @@ export default function MailMergeWizard() {
           
           const emailRow = emailsFile.rows.find(eRow => String(eRow[mappings.emailRuc]) === ruc);
           let recipientName = ruc;
+          let to = emailMap.get(ruc) || 'Correo no encontrado';
           if (emailRow) {
             Object.entries(emailRow).forEach(([key, value]) => {
               const placeholder = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
@@ -282,10 +282,10 @@ export default function MailMergeWizard() {
           }
 
           return { to, body, recipient: recipientName };
-        }).filter(p => p.to !== 'Correo no encontrado');
+        }).filter(p => p.to !== 'Correo no encontrado' && p.to.includes('@'));
 
         if (generatedPreviews.length === 0) {
-            toast({ title: "Sin coincidencias", description: "No se encontraron RUCs que coincidan entre los dos archivos.", variant: "destructive" });
+            toast({ title: "Sin coincidencias", description: "No se encontraron RUCs que coincidan entre los dos archivos o los correos son inválidos.", variant: "destructive" });
         } else {
             setPreviews(generatedPreviews);
             setPreviewIndex(0);
