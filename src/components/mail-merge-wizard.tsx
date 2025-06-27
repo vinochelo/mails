@@ -67,7 +67,7 @@ const mockDataFile = {
     { TIPO_COMP: 'Factura', RUC: '1792566436001', RAZON_SOCIAL_EMISOR: 'ALTIDAT S A', SERIE_COMPROBANTE: '001-001-000028142', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
     { TIPO_COMP: 'Factura', RUC: '1792566436001', RAZON_SOCIAL_EMISOR: 'ALTIDAT S A', SERIE_COMPROBANTE: '001-001-000028143', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
     { TIPO_COMP: 'Factura', RUC: '1792566436001', RAZON_SOCIAL_EMISOR: 'ALTIDAT S A', SERIE_COMPROBANTE: '001-001-000028353', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
-    { TIPO_COMP: 'Factura', RUC: '1792566436001', RAZON_SOCIAL_EMISOR: 'ALTIDAT S A', SERIE_COMPROBANTE: '001-001-000028357', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
+    { TIPO_COMP: 'Factura', RUC: '1792566436001', RAZON_SOCIAL_EMISOR: 'ALTIDAT S A', SERIE_COMPROBANTE: '001-001-000028357', OBSERVaciones: 'SIN RECIBIR EN CD ANULAR FACTURA' },
     { TIPO_COMP: 'Factura', RUC: '1792201160001', RAZON_SOCIAL_EMISOR: 'ASERTIA COMERCIAL S.A.', SERIE_COMPROBANTE: '001-006-001975480', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
     { TIPO_COMP: 'Factura', RUC: '1792201160001', RAZON_SOCIAL_EMISOR: 'ASERTIA COMERCIAL S.A.', SERIE_COMPROBANTE: '001-006-001964503', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
     { TIPO_COMP: 'Factura', RUC: '1792201160001', RAZON_SOCIAL_EMISOR: 'ASERTIA COMERCIAL S.A.', SERIE_COMPROBANTE: '001-023-000010655', OBSERVACIONES: 'SIN RECIBIR EN CD ANULAR FACTURA' },
@@ -209,8 +209,8 @@ export default function MailMergeWizard() {
   const [emailsFile, setEmailsFile] = useState(null);
   const [dataFile, setDataFile] = useState(null);
   const [mappings, setMappings] = useState({ emailRuc: '', emailAddress: '', dataRuc: '', dataFields: {} });
-  const [emailTemplate, setEmailTemplate] = useState('Estimado/a {{NOMBRE}},\n\nLe escribimos de parte de nuestra empresa en relación a sus facturas pendientes.\n\nSegún nuestros registros, los detalles son los siguientes:\n\n{{invoice_details}}\n\nPor favor, considere este comunicado como un recordatorio amigable.\n\nSaludos cordiales,\nEl equipo de Cobranzas');
-  const [commonStructures, setCommonStructures] = useState('Recordatorio de pago. Facturas pendientes. Regularizar situación.');
+  const [emailTemplate, setEmailTemplate] = useState('Estimados señores de {{NOMBRE}},\n\nPor medio de la presente, solicitamos su ayuda con la anulación de las siguientes facturas ante el SRI.\n\nA continuación, el detalle de los comprobantes y el motivo de la anulación:\n\n{{invoice_details}}\n\nAgradecemos de antemano su gestión.\n\nSaludos cordiales,\nEl Equipo de MailMergeXLS');
+  const [commonStructures, setCommonStructures] = useState('Solicitud de anulación. Anular facturas SRI. Motivo de anulación.');
   const [isGenerating, setIsGenerating] = useState(false);
   const [previews, setPreviews] = useState([]);
   const [previewIndex, setPreviewIndex] = useState(0);
@@ -249,10 +249,10 @@ export default function MailMergeWizard() {
     // Simulate processing delay
     setTimeout(() => {
       try {
-        const emailMap = new Map(mockEmailFile.rows.map(row => [row[mappings.emailRuc], row[mappings.emailAddress]]));
+        const emailMap = new Map(mockEmailFile.rows.map(row => [String(row[mappings.emailRuc]), row[mappings.emailAddress]]));
         
         const dataByRuc = mockDataFile.rows.reduce((acc, row) => {
-          const ruc = row[mappings.dataRuc];
+          const ruc = String(row[mappings.dataRuc]);
           if (!acc[ruc]) acc[ruc] = [];
           acc[ruc].push(row);
           return acc;
@@ -273,7 +273,7 @@ export default function MailMergeWizard() {
           body = body.replace(/\{\{invoice_details\}\}/g, invoiceDetails);
           
           // Then, replace placeholders from email file
-          const emailRow = mockEmailFile.rows.find(eRow => String(eRow[mappings.emailRuc]) === String(ruc));
+          const emailRow = mockEmailFile.rows.find(eRow => String(eRow[mappings.emailRuc]) === ruc);
           let recipientName = ruc;
           if (emailRow) {
             Object.entries(emailRow).forEach(([key, value]) => {
@@ -454,7 +454,7 @@ export default function MailMergeWizard() {
                         </div>
                         <div className="border rounded-lg p-4 bg-card">
                             <p className="text-sm font-semibold">Para: <span className="font-normal">{currentPreview.to}</span></p>
-                            <p className="text-sm font-semibold">Asunto: <span className="font-normal">Recordatorio de Pago</span></p>
+                            <p className="text-sm font-semibold">Asunto: <span className="font-normal">Solicitud de Anulación de Facturas</span></p>
                             <div className="border-t my-2"></div>
                             <div className="whitespace-pre-wrap text-sm">{currentPreview.body}</div>
                         </div>
