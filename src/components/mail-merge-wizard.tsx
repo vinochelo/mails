@@ -13,6 +13,7 @@ import { emailAutocompletion } from '@/ai/flows/email-autocompletion';
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { sendEmailsAction } from '@/app/actions/send-email';
+import { Separator } from '@/components/ui/separator';
 
 type ParsedFileData = {
   name: string;
@@ -556,25 +557,35 @@ export default function MailMergeWizard() {
                     <p className="text-center text-muted-foreground">No hay vistas previas para mostrar.</p>
                 )}
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline" onClick={handlePrevStep}><ChevronLeft className="mr-2 h-4 w-4" /> Atrás</Button>
-              <div className="flex items-start gap-4">
+            <CardFooter className="flex justify-between items-start pt-6">
+              <Button variant="outline" onClick={handlePrevStep}>
+                <ChevronLeft className="mr-2 h-4 w-4" /> Atrás
+              </Button>
+              <div className="flex items-start gap-6">
+                <div className="flex flex-col items-center text-center gap-2">
+                  <p className="font-semibold">Opción 1: Envío Manual</p>
+                  <p className="text-sm text-muted-foreground max-w-xs">Recomendado si no tienes un dominio propio verificado.</p>
                   <Button variant="secondary" onClick={handleDownload} disabled={previews.length === 0}>
-                      <Download className="mr-2 h-4 w-4"/> Descargar CSV
+                    <Download className="mr-2 h-4 w-4" /> Descargar CSV para Outlook/Gmail
                   </Button>
-                  <div className="flex flex-col items-end">
-                      <Button onClick={handleSendEmails} disabled={previews.length === 0 || isSending}>
-                          {isSending ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : (
-                              <Send className="mr-2 h-4 w-4" />
-                          )}
-                          {isSending ? 'Enviando...' : 'Enviar Correos'}
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-2 text-right">
-                          Para pruebas, se enviará desde <strong>onboarding@resend.dev</strong> solo a tu correo.<br/>Para usar tu propio remitente, debes <a href="https://resend.com/docs/introduction" target="_blank" rel="noopener noreferrer" className="underline font-medium">verificar un dominio en Resend</a>.
-                      </p>
-                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Usa la guía de arriba para enviarlos.</p>
+                </div>
+                <Separator orientation="vertical" className="h-28" />
+                <div className="flex flex-col items-center text-center gap-2">
+                    <p className="font-semibold">Opción 2: Envío Automático</p>
+                    <p className="text-sm text-muted-foreground max-w-xs">Requiere un dominio verificado en Resend.</p>
+                    <Button onClick={handleSendEmails} disabled={previews.length === 0 || isSending}>
+                        {isSending ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <Send className="mr-2 h-4 w-4" />
+                        )}
+                        {isSending ? 'Enviando...' : 'Enviar con Resend'}
+                    </Button>
+                     <p className="text-xs text-muted-foreground mt-1 text-center max-w-xs">
+                        El modo de prueba enviará desde <strong>onboarding@resend.dev</strong> solo a tu correo de registro.
+                    </p>
+                </div>
               </div>
             </CardFooter>
           </Card>
