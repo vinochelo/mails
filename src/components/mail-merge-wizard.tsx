@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef } from 'react';
 import * as XLSX from 'xlsx';
-import { UploadCloud, FileCheck2, Columns, MailPlus, Sparkles, Eye, Download, Send, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { UploadCloud, FileCheck2, Columns, MailPlus, Sparkles, Eye, Download, Send, ChevronRight, ChevronLeft, Loader2, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -466,20 +466,39 @@ export default function MailMergeWizard() {
             </CardHeader>
             <CardContent>
                 {previews.length > 0 && currentPreview ? (
-                    <div>
-                        <div className="flex justify-between items-center mb-4">
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center">
                             <p className="font-medium">Destinatario {previewIndex + 1} de {previews.length}: <span className="font-normal text-muted-foreground">{currentPreview.recipient}</span></p>
                             <div className="flex gap-2">
                                 <Button variant="outline" size="icon" onClick={() => setPreviewIndex(p => Math.max(0, p - 1))} disabled={previewIndex === 0}><ChevronLeft className="h-4 w-4" /></Button>
                                 <Button variant="outline" size="icon" onClick={() => setPreviewIndex(p => Math.min(previews.length - 1, p + 1))} disabled={previewIndex === previews.length - 1}><ChevronRight className="h-4 w-4" /></Button>
                             </div>
                         </div>
-                        <div className="border rounded-lg p-4 bg-card">
+                        <div className="border rounded-lg p-4 bg-muted/30">
                             <p className="text-sm font-semibold">Para: <span className="font-normal">{currentPreview.to}</span></p>
                             <p className="text-sm font-semibold">Asunto: <span className="font-normal">Solicitud de Anulación de Facturas</span></p>
                             <div className="border-t my-2"></div>
                             <div className="whitespace-pre-wrap text-sm">{currentPreview.body}</div>
                         </div>
+
+                        <Card className="bg-blue-50 border-blue-200">
+                          <CardHeader>
+                              <CardTitle className="text-lg flex items-center gap-2 text-blue-800">
+                                <HelpCircle />
+                                ¿Cómo enviar los correos?
+                              </CardTitle>
+                          </CardHeader>
+                          <CardContent className="text-blue-700 space-y-2">
+                            <p>El archivo <strong>correos_generados.csv</strong> que descargaste está listo para usarse con herramientas de envío masivo.</p>
+                            <p>Te recomendamos usar un complemento de "Mail Merge" en Hojas de Cálculo de Google (Google Sheets):</p>
+                            <ol className="list-decimal list-inside space-y-1 pl-2">
+                                <li>Abre una nueva Hoja de Cálculo de Google y ve a <strong>Archivo &gt; Importar</strong> para subir tu CSV.</li>
+                                <li>Instala un complemento como <a href="https://workspace.google.com/marketplace/app/yet_another_mail_merge_mail_merge_for_gm/520629572273" target="_blank" rel="noopener noreferrer" className="underline font-medium">Yet Another Mail Merge (YAMM)</a>.</li>
+                                <li>Inicia el complemento. Automáticamente detectará las columnas "Para", "Asunto", etc.</li>
+                                <li>Envía un correo de prueba y luego ¡lanza tu campaña de envío!</li>
+                            </ol>
+                          </CardContent>
+                        </Card>
                     </div>
                 ) : (
                     <p className="text-center text-muted-foreground">No hay vistas previas para mostrar.</p>
@@ -489,9 +508,9 @@ export default function MailMergeWizard() {
               <Button variant="outline" onClick={handlePrevStep}><ChevronLeft className="mr-2 h-4 w-4" /> Atrás</Button>
               <div className="flex gap-4">
                   <Button variant="secondary" onClick={handleDownload} disabled={previews.length === 0}>
-                      <Download className="mr-2 h-4 w-4"/> Descargar
+                      <Download className="mr-2 h-4 w-4"/> Descargar CSV
                   </Button>
-                  <Button onClick={() => toast({ title: 'Simulación', description: `Función de envío no implementada. Se enviarían ${previews.length} correos.`})} disabled={previews.length === 0}>
+                  <Button onClick={() => toast({ title: 'Simulación de Envío', description: `Función no implementada. Descarga el CSV para enviarlo con tu cliente de correo.`})} disabled={previews.length === 0}>
                       <Send className="mr-2 h-4 w-4"/> Enviar Correos
                   </Button>
               </div>
