@@ -500,27 +500,37 @@ export default function MailMergeWizard() {
                                 <TabsTrigger value="outlook">Outlook</TabsTrigger>
                               </TabsList>
                               <TabsContent value="google-sheets" className="mt-4">
-                                  <p className="font-semibold">Opción 1: Usar un complemento de Google Sheets</p>
-                                  <p className="text-sm mt-1">Esta es la forma más sencilla. Instalas un complemento y él hace el trabajo. Los planes gratuitos tienen límites diarios:</p>
-                                  <ol className="list-decimal list-inside space-y-3 pl-2 mt-3">
-                                      <li>
-                                          Abre una nueva Hoja de Cálculo de Google y ve a <strong>Archivo &gt; Importar</strong> para subir tu CSV.
-                                      </li>
-                                      <li>
-                                          Desde el menú, ve a <strong>Extensiones &gt; Complementos &gt; Descargar complementos</strong> e instala una de estas opciones:
-                                          <ul className="list-disc list-inside pl-4 mt-2 space-y-1">
-                                              <li>
-                                                  <a href="https://workspace.google.com/marketplace/app/mailmeteor_mail_merge_for_gmail/1008273617323" target="_blank" rel="noopener noreferrer" className="underline font-medium">Mailmeteor</a> (Recomendado, hasta 75 correos/día gratis).
-                                              </li>
-                                              <li>
-                                                  <a href="https://workspace.google.com/marketplace/app/yet_another_mail_merge_mail_merge_for_gm/520629572273" target="_blank" rel="noopener noreferrer" className="underline font-medium">Yet Another Mail Merge (YAMM)</a> (Hasta 20 correos/día gratis).
-                                              </li>
-                                          </ul>
-                                      </li>
-                                      <li>
-                                          Inicia el complemento que instalaste desde el menú de Extensiones. Detectará automáticamente las columnas y te guiará para enviar los correos.
-                                      </li>
-                                  </ol>
+                                <p className="font-semibold">Guía Detallada para Enviar con Mailmeteor</p>
+                                <p className="text-sm mt-1">Esta es la forma más sencilla y recomendada. Mailmeteor te permite enviar hasta 75 correos al día gratis.</p>
+                                <ol className="list-decimal list-inside space-y-3 pl-2 mt-3 text-sm">
+                                    <li>
+                                        <strong>Sube tu archivo a Google Sheets</strong>: Abre una nueva Hoja de Cálculo de Google y ve a <strong>Archivo &gt; Importar</strong>. Selecciona el archivo <code>correos_generados.csv</code> que descargaste.
+                                    </li>
+                                    <li>
+                                        <strong>Instala el complemento</strong>: Desde el menú, ve a <strong>Extensiones &gt; Complementos &gt; Descargar complementos</strong>. Busca e instala <a href="https://workspace.google.com/marketplace/app/mailmeteor_mail_merge_for_gmail/1008273617323" target="_blank" rel="noopener noreferrer" className="underline font-medium">Mailmeteor</a>.
+                                    </li>
+                                    <li>
+                                        <strong>Inicia Mailmeteor</strong>: Una vez instalado, ve a <strong>Extensiones &gt; Mailmeteor &gt; Abrir Mailmeteor</strong>. Se abrirá un panel a la derecha de tu pantalla.
+                                    </li>
+                                    <li>
+                                        <strong>Configura la Plantilla</strong>: Mailmeteor es inteligente y debería detectar tus columnas.
+                                        <ul className="list-disc list-inside pl-4 mt-2 space-y-2">
+                                            <li>El campo <strong>"Email column"</strong> debería seleccionar automáticamente la columna <code>Para</code>.</li>
+                                            <li>Haz clic en el botón <strong>"Create new template"</strong>.</li>
+                                            <li>En la nueva ventana, para el <strong>Asunto</strong> (Subject), borra el contenido y haz clic en el botón <strong>&#123;+ Insert variable&#125;</strong>. Selecciona <strong>Asunto</strong>. El campo debería mostrar <code>&#123;&#123;Asunto&#125;&#125;</code>.</li>
+                                            <li>En el <strong>Cuerpo del correo</strong>, borra todo el texto, vuelve a hacer clic en <strong>&#123;+ Insert variable&#125;</strong> y selecciona <strong>Cuerpo</strong>. El campo debería mostrar <code>&#123;&#123;Cuerpo&#125;&#125;</code>.</li>
+                                            <li>Guarda la plantilla.</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <strong>¡Envía!</strong>
+                                        <ul className="list-disc list-inside pl-4 mt-2 space-y-2">
+                                            <li>De vuelta en el panel principal de Mailmeteor, puedes hacer clic en <strong>"Send a test email"</strong> para enviarte una prueba y verificar que todo está correcto.</li>
+                                            <li>Cuando estés listo, presiona el gran botón azul <strong>"Send emails"</strong> para iniciar el envío a toda tu lista.</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                                <p className="text-xs italic mt-4 text-blue-600">Si Mailmeteor no te funciona, puedes probar <a href="https://workspace.google.com/marketplace/app/yet_another_mail_merge_mail_merge_for_gm/520629572273" target="_blank" rel="noopener noreferrer" className="underline font-medium">Yet Another Mail Merge (YAMM)</a>, aunque su límite gratuito es más bajo (20 correos/día).</p>
                               </TabsContent>
                               <TabsContent value="outlook" className="mt-4">
                                 <p className="font-semibold">Opción 2: Usar Word y Outlook (Nativo)</p>
