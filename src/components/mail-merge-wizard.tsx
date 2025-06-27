@@ -141,7 +141,10 @@ export default function MailMergeWizard() {
     }
     setIsGenerating(true);
     try {
-      const recipientData = mockDataFile.rows[0];
+      const rawRecipientData = mockDataFile.rows[0];
+      const recipientData = Object.fromEntries(
+        Object.entries(rawRecipientData).map(([key, value]) => [key, String(value)])
+      );
       const template = emailTemplate;
       
       const res = await emailAutocompletion({ template, recipientData, commonStructures });
