@@ -496,21 +496,36 @@ export default function MailMergeWizard() {
                           <CardContent className="text-blue-700 pt-0">
                             <Tabs defaultValue="google-sheets" className="w-full">
                               <TabsList className="grid w-full grid-cols-2 bg-blue-100">
-                                <TabsTrigger value="google-sheets">Google Sheets</TabsTrigger>
+                                <TabsTrigger value="google-sheets">Google / Gmail</TabsTrigger>
                                 <TabsTrigger value="outlook">Outlook</TabsTrigger>
                               </TabsList>
                               <TabsContent value="google-sheets" className="mt-4">
-                                  <p className="font-semibold">Opción recomendada (más sencilla):</p>
-                                  <ol className="list-decimal list-inside space-y-2 pl-2 mt-2">
-                                      <li>Abre una nueva Hoja de Cálculo de Google y ve a <strong>Archivo &gt; Importar</strong> para subir tu CSV.</li>
-                                      <li>Desde el menú, ve a <strong>Extensiones &gt; Complementos &gt; Descargar complementos</strong> e instala <a href="https://workspace.google.com/marketplace/app/yet_another_mail_merge_mail_merge_for_gm/520629572273" target="_blank" rel="noopener noreferrer" className="underline font-medium">Yet Another Mail Merge (YAMM)</a>.</li>
-                                      <li>Inicia YAMM desde el menú de Extensiones. Detectará automáticamente la columna "Para" y usará las columnas "Asunto" y "Cuerpo" para tu campaña.</li>
-                                      <li>Envía un correo de prueba y luego ¡lanza tu campaña de envío!</li>
+                                  <p className="font-semibold">Opción 1: Usar un complemento de Google Sheets</p>
+                                  <p className="text-sm mt-1">Esta es la forma más sencilla. Instalas un complemento y él hace el trabajo. Los planes gratuitos tienen límites diarios:</p>
+                                  <ol className="list-decimal list-inside space-y-3 pl-2 mt-3">
+                                      <li>
+                                          Abre una nueva Hoja de Cálculo de Google y ve a <strong>Archivo &gt; Importar</strong> para subir tu CSV.
+                                      </li>
+                                      <li>
+                                          Desde el menú, ve a <strong>Extensiones &gt; Complementos &gt; Descargar complementos</strong> e instala una de estas opciones:
+                                          <ul className="list-disc list-inside pl-4 mt-2 space-y-1">
+                                              <li>
+                                                  <a href="https://workspace.google.com/marketplace/app/mailmeteor_mail_merge_for_gmail/1008273617323" target="_blank" rel="noopener noreferrer" className="underline font-medium">Mailmeteor</a> (Recomendado, hasta 75 correos/día gratis).
+                                              </li>
+                                              <li>
+                                                  <a href="https://workspace.google.com/marketplace/app/yet_another_mail_merge_mail_merge_for_gm/520629572273" target="_blank" rel="noopener noreferrer" className="underline font-medium">Yet Another Mail Merge (YAMM)</a> (Hasta 20 correos/día gratis).
+                                              </li>
+                                          </ul>
+                                      </li>
+                                      <li>
+                                          Inicia el complemento que instalaste desde el menú de Extensiones. Detectará automáticamente las columnas y te guiará para enviar los correos.
+                                      </li>
                                   </ol>
                               </TabsContent>
                               <TabsContent value="outlook" className="mt-4">
-                                <p className="font-semibold">Usando Word y Outlook (nativo):</p>
-                                <ol className="list-decimal list-inside space-y-2 pl-2 mt-2">
+                                <p className="font-semibold">Opción 2: Usar Word y Outlook (Nativo)</p>
+                                <p className="text-sm mt-1">Este método usa la función de "Combinar correspondencia" de Microsoft Office. No tiene los límites de los complementos, usarás los límites de tu propia cuenta de Outlook (que suelen ser mucho más altos).</p>
+                                <ol className="list-decimal list-inside space-y-2 pl-2 mt-3">
                                   <li>Abre un documento en <strong>Microsoft Word</strong> (no en Outlook).</li>
                                   <li>Ve a la pestaña <strong>Correspondencia &gt; Iniciar Combinación de correspondencia &gt; Mensajes de correo electrónico</strong>.</li>
                                   <li>Haz clic en <strong>Seleccionar destinatarios &gt; Usar una lista existente...</strong> y elige el archivo <strong>correos_generados.csv</strong>.</li>
@@ -524,7 +539,7 @@ export default function MailMergeWizard() {
                                     </ul>
                                   </li>
                                 </ol>
-                                <p className="text-xs italic mt-2 text-blue-600">Nota: La apariencia del correo (saltos de línea, etc.) dependerá de cómo Word interprete el texto. La opción con Google Sheets/YAMM suele dar resultados más fiables con cuerpos de texto complejos.</p>
+                                <p className="text-xs italic mt-2 text-blue-600">Nota: La apariencia del correo (saltos de línea, etc.) dependerá de cómo Word interprete el texto. La opción con los complementos de Google Sheets suele dar resultados más fiables con cuerpos de texto complejos.</p>
                               </TabsContent>
                             </Tabs>
                           </CardContent>
@@ -538,8 +553,8 @@ export default function MailMergeWizard() {
               <Button variant="outline" onClick={handlePrevStep}>
                 <ChevronLeft className="mr-2 h-4 w-4" /> Atrás
               </Button>
-              <Button variant="secondary" onClick={handleDownload} disabled={previews.length === 0}>
-                <Download className="mr-2 h-4 w-4" /> Descargar CSV para Outlook/Gmail
+              <Button onClick={handleDownload} disabled={previews.length === 0}>
+                <Download className="mr-2 h-4 w-4" /> Descargar CSV para Envío
               </Button>
             </CardFooter>
           </Card>
