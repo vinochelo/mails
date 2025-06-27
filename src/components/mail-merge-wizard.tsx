@@ -17,11 +17,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 const mockEmailFile = {
   name: 'destinatarios.xlsx',
   size: 1024,
-  headers: ['ID', 'RUC', 'Correo Electrónico', 'Nombre Contacto'],
+  headers: ['RUC', 'CODIGO', 'NOMBRE', 'CORREO'],
   rows: [
-    { RUC: '20551234567', 'Correo Electrónico': 'contacto@empresa-a.com', 'Nombre Contacto': 'Juan Pérez' },
-    { RUC: '20557654321', 'Correo Electrónico': 'gerencia@empresa-b.com', 'Nombre Contacto': 'Maria García' },
-    { RUC: '10451234567', 'Correo Electrónico': 'soporte@persona-c.com', 'Nombre Contacto': 'Carlos Rodriguez' },
+    { RUC: '20551234567', CODIGO: 'CLI001', NOMBRE: 'Empresa A S.A.C.', CORREO: 'contacto@empresa-a.com' },
+    { RUC: '20557654321', CODIGO: 'CLI002', NOMBRE: 'Empresa B S.R.L.', CORREO: 'gerencia@empresa-b.com' },
+    { RUC: '10451234567', CODIGO: 'CLI003', NOMBRE: 'Carlos Rodriguez', CORREO: 'soporte@persona-c.com' },
   ],
 };
 
@@ -118,7 +118,7 @@ export default function MailMergeWizard() {
   const [emailsFile, setEmailsFile] = useState(null);
   const [dataFile, setDataFile] = useState(null);
   const [mappings, setMappings] = useState({ emailRuc: '', emailAddress: '', dataRuc: '', dataFields: {} });
-  const [emailTemplate, setEmailTemplate] = useState('Estimado/a {{Nombre Contacto}},\n\nLe escribimos de parte de nuestra empresa en relación a sus facturas pendientes.\n\nSegún nuestros registros, los detalles son los siguientes:\n{{invoice_details}}\n\nPor favor, considere este comunicado como un recordatorio amigable.\n\nSaludos cordiales,\nEl equipo de Cobranzas');
+  const [emailTemplate, setEmailTemplate] = useState('Estimado/a {{NOMBRE}},\n\nLe escribimos de parte de nuestra empresa en relación a sus facturas pendientes.\n\nSegún nuestros registros, los detalles son los siguientes:\n{{invoice_details}}\n\nPor favor, considere este comunicado como un recordatorio amigable.\n\nSaludos cordiales,\nEl equipo de Cobranzas');
   const [commonStructures, setCommonStructures] = useState('Recordatorio de pago. Facturas pendientes. Regularizar situación.');
   const [isGenerating, setIsGenerating] = useState(false);
   const [previews, setPreviews] = useState([]);
@@ -172,22 +172,23 @@ export default function MailMergeWizard() {
           let body = emailTemplate;
           
           const firstRow = rows[0];
-          Object.keys(firstRow).forEach(key => {
+          // Replace placeholders from data file first
+          Object.entries(firstRow).forEach(([key, value]) => {
             const placeholder = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-            body = body.replace(placeholder, firstRow[key]);
+            body = body.replace(placeholder, String(value));
           });
           
           const invoiceDetails = rows.map(row => `- Factura: ${row.NRO_FACTURA}, Monto: S/ ${Number(row.MONTO_DEUDA).toFixed(2)}, Vence: ${row.FECHA_VENCIMIENTO}`).join('\n');
           body = body.replace(/\{\{invoice_details\}\}/g, invoiceDetails);
           
-          mockEmailFile.rows.forEach(emailRow => {
-            if(emailRow.RUC === ruc) {
-                 Object.keys(emailRow).forEach(key => {
-                    const placeholder = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-                    body = body.replace(placeholder, emailRow[key]);
-                });
-            }
-          });
+          // Then, replace placeholders from email file
+          const emailRow = mockEmailFile.rows.find(eRow => String(eRow[mappings.emailRuc]) === String(ruc));
+          if (emailRow) {
+            Object.entries(emailRow).forEach(([key, value]) => {
+              const placeholder = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+              body = body.replace(placeholder, String(value));
+            });
+          }
 
           return { to, body, recipient: firstRow.RAZON_SOCIAL || ruc };
         });
@@ -220,8 +221,8 @@ export default function MailMergeWizard() {
                 <AlertDescription>
                   <p>Esta es una demostración. La carga de archivos está simulada con datos de ejemplo. Para que la combinación funcione, sus archivos deben tener una estructura específica:</p>
                   <ul className="list-disc pl-5 mt-2 text-xs">
-                      <li><b>Archivo de Correos:</b> Debe contener una columna para el RUC (o ID único) y otra para el correo electrónico. Por ejemplo: <code>RUC</code>, <code>Correo Electrónico</code>.</li>
-                      <li><b>Archivo de Datos:</b> Debe contener una columna con el mismo RUC (o ID único) para cruzar los datos, y columnas adicionales que quiera usar en su correo. Por ejemplo: <code>RUC_CLIENTE</code>, <code>NRO_FACTURA</code>, <code>MONTO_DEUDA</code>.</li>
+                    <li><b>Archivo de Correos:</b> Debe contener una columna para el identificador único (ej. <code>RUC</code>), el nombre del contacto (ej. <code>NOMBRE</code>) y el email (ej. <code>CORREO</code>).</li>
+                    <li><b>Archivo de Datos:</b> Debe contener una columna con el mismo identificador único (ej. <code>RUC_CLIENTE</code>) para cruzar los datos, y las columnas con la información que desea incluir en el correo (ej. <code>NRO_FACTURA</code>, <code>MONTO_DEUDA</code>).</li>
                   </ul>
                 </AlertDescription>
               </Alert>
