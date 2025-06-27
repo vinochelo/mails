@@ -9,7 +9,6 @@ import { z } from 'zod';
 // You will also need to verify a domain with Resend to use a custom 'from' address.
 // For testing, you can use 'onboarding@resend.dev', but emails will only be sent
 // to your own verified email address (the one you signed up with).
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 const EmailSchema = z.object({
   to: z.string().email(),
@@ -23,6 +22,8 @@ export async function sendEmailsAction(previews: Preview[]) {
   if (!process.env.RESEND_API_KEY) {
     return { success: false, error: "La clave de API de Resend no está configurada. Añade RESEND_API_KEY a tu archivo .env" };
   }
+  
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
     const payload = previews.map(p => ({
