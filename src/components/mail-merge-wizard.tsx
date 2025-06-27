@@ -403,60 +403,64 @@ export default function MailMergeWizard() {
         );
       case 3:
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2">
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="lg:col-span-2">
+                  <CardHeader>
+                      <CardTitle>Paso 3: Crear Plantilla de Correo</CardTitle>
+                      <CardDescription>Diseñe el correo que se enviará. Use placeholders para los datos.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <Textarea
+                          value={emailTemplate}
+                          onChange={(e) => setEmailTemplate(e.target.value)}
+                          placeholder="Escriba su correo aquí..."
+                          rows={15}
+                          className="text-base"
+                      />
+                  </CardContent>
+              </Card>
+              <div className="space-y-6">
+                  <Card>
+                      <CardHeader>
+                          <CardTitle className="text-lg">Placeholders</CardTitle>
+                          <CardDescription>Variables disponibles de sus archivos.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="text-sm max-h-32 overflow-y-auto">
+                          <p className="font-semibold">Datos Generales:</p>
+                          {allDataFields.map(f => <code key={f} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
+                          <p className="font-semibold mt-2">Datos de Correo:</p>
+                          {emailsFile?.headers.map(f => <code key={f} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
+                          <p className="font-semibold mt-2">Detalles (Multi-línea):</p>
+                          <code className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;invoice_details&#125;&#125;</code>
+                      </CardContent>
+                  </Card>
+              </div>
+            </div>
+
+            <Card className="mt-6">
                 <CardHeader>
-                    <CardTitle>Paso 3: Crear Plantilla de Correo</CardTitle>
-                    <CardDescription>Diseñe el correo que se enviará. Use placeholders para los datos.</CardDescription>
+                    <CardTitle className="text-lg flex items-center gap-2"><Sparkles className="text-primary"/> Asistente con IA</CardTitle>
+                    <CardDescription>Mejore su correo con inteligencia artificial. La IA refinará el texto basándose en sus ideas clave, manteniendo intactos los placeholders.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Textarea
-                        value={emailTemplate}
-                        onChange={(e) => setEmailTemplate(e.target.value)}
-                        placeholder="Escriba su correo aquí..."
-                        rows={15}
-                        className="text-base"
-                    />
+                    <Label htmlFor="common-structures">Frases o ideas clave</Label>
+                    <Textarea id="common-structures" value={commonStructures} onChange={(e) => setCommonStructures(e.target.value)} placeholder="Ej: Urgente, último aviso, etc." rows={2} />
+                    <Button onClick={handleGenerateWithAI} disabled={isGenerating} className="w-full sm:w-auto mt-4">
+                        {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                        Mejorar con IA
+                    </Button>
                 </CardContent>
             </Card>
-            <div className="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-lg">Placeholders</CardTitle>
-                        <CardDescription>Variables disponibles de sus archivos.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="text-sm max-h-32 overflow-y-auto">
-                        <p className="font-semibold">Datos Generales:</p>
-                        {allDataFields.map(f => <code key={f} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
-                        <p className="font-semibold mt-2">Datos de Correo:</p>
-                        {emailsFile?.headers.map(f => <code key={f} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
-                        <p className="font-semibold mt-2">Detalles (Multi-línea):</p>
-                        <code className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;invoice_details&#125;&#125;</code>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2"><Sparkles className="text-primary"/> Asistente con IA</CardTitle>
-                        <CardDescription>Mejore su correo con inteligencia artificial.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Label htmlFor="common-structures">Frases o ideas clave</Label>
-                        <Textarea id="common-structures" value={commonStructures} onChange={(e) => setCommonStructures(e.target.value)} placeholder="Ej: Urgente, último aviso, etc." rows={2} />
-                        <Button onClick={handleGenerateWithAI} disabled={isGenerating} className="w-full mt-4">
-                            {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                            Mejorar con IA
-                        </Button>
-                    </CardContent>
-                </Card>
-                 <div className="flex justify-between">
-                    <Button variant="outline" onClick={handlePrevStep}><ChevronLeft className="mr-2 h-4 w-4" /> Atrás</Button>
-                    <Button onClick={handleGeneratePreviews} disabled={isGenerating}>
-                        {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Eye className="mr-2 h-4 w-4" />}
-                        Generar Vistas Previas
-                    </Button>
-                </div>
+
+            <div className="flex justify-between items-center mt-6 border-t pt-6">
+                <Button variant="outline" onClick={handlePrevStep}><ChevronLeft className="mr-2 h-4 w-4" /> Atrás</Button>
+                <Button onClick={handleGeneratePreviews} disabled={isGenerating}>
+                    {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Eye className="mr-2 h-4 w-4" />}
+                    Generar Vistas Previas
+                </Button>
             </div>
-          </div>
+          </>
         );
        case 4:
         const currentPreview = previews[previewIndex];
