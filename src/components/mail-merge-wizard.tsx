@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { emailAutocompletion } from '@/ai/flows/email-autocompletion';
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type ParsedFileData = {
   name: string;
@@ -487,16 +488,44 @@ export default function MailMergeWizard() {
                                 <HelpCircle />
                                 ¿Cómo enviar los correos?
                               </CardTitle>
+                              <CardDescription className="text-blue-600 pt-2">
+                                El archivo <strong>correos_generados.csv</strong> que descargaste está listo para usarse con herramientas de envío masivo. Selecciona tu cliente de correo para ver las instrucciones:
+                              </CardDescription>
                           </CardHeader>
-                          <CardContent className="text-blue-700 space-y-2">
-                            <p>El archivo <strong>correos_generados.csv</strong> que descargaste está listo para usarse con herramientas de envío masivo.</p>
-                            <p>Te recomendamos usar un complemento de "Mail Merge" en Hojas de Cálculo de Google (Google Sheets):</p>
-                            <ol className="list-decimal list-inside space-y-1 pl-2">
-                                <li>Abre una nueva Hoja de Cálculo de Google y ve a <strong>Archivo &gt; Importar</strong> para subir tu CSV.</li>
-                                <li>Instala un complemento como <a href="https://workspace.google.com/marketplace/app/yet_another_mail_merge_mail_merge_for_gm/520629572273" target="_blank" rel="noopener noreferrer" className="underline font-medium">Yet Another Mail Merge (YAMM)</a>.</li>
-                                <li>Inicia el complemento. Automáticamente detectará las columnas "Para", "Asunto", etc.</li>
-                                <li>Envía un correo de prueba y luego ¡lanza tu campaña de envío!</li>
-                            </ol>
+                          <CardContent className="text-blue-700 pt-0">
+                            <Tabs defaultValue="google-sheets" className="w-full">
+                              <TabsList className="grid w-full grid-cols-2 bg-blue-100">
+                                <TabsTrigger value="google-sheets">Google Sheets</TabsTrigger>
+                                <TabsTrigger value="outlook">Outlook</TabsTrigger>
+                              </TabsList>
+                              <TabsContent value="google-sheets" className="mt-4">
+                                  <p className="font-semibold">Opción recomendada (más sencilla):</p>
+                                  <ol className="list-decimal list-inside space-y-2 pl-2 mt-2">
+                                      <li>Abre una nueva Hoja de Cálculo de Google y ve a <strong>Archivo &gt; Importar</strong> para subir tu CSV.</li>
+                                      <li>Desde el menú, ve a <strong>Extensiones &gt; Complementos &gt; Descargar complementos</strong> e instala <a href="https://workspace.google.com/marketplace/app/yet_another_mail_merge_mail_merge_for_gm/520629572273" target="_blank" rel="noopener noreferrer" className="underline font-medium">Yet Another Mail Merge (YAMM)</a>.</li>
+                                      <li>Inicia YAMM desde el menú de Extensiones. Detectará automáticamente la columna "Para" y usará las columnas "Asunto" y "Cuerpo" para tu campaña.</li>
+                                      <li>Envía un correo de prueba y luego ¡lanza tu campaña de envío!</li>
+                                  </ol>
+                              </TabsContent>
+                              <TabsContent value="outlook" className="mt-4">
+                                <p className="font-semibold">Usando Word y Outlook (nativo):</p>
+                                <ol className="list-decimal list-inside space-y-2 pl-2 mt-2">
+                                  <li>Abre un documento en <strong>Microsoft Word</strong> (no en Outlook).</li>
+                                  <li>Ve a la pestaña <strong>Correspondencia &gt; Iniciar Combinación de correspondencia &gt; Mensajes de correo electrónico</strong>.</li>
+                                  <li>Haz clic en <strong>Seleccionar destinatarios &gt; Usar una lista existente...</strong> y elige el archivo <strong>correos_generados.csv</strong>.</li>
+                                  <li>En la pestaña Correspondencia, haz clic en <strong>Insertar campo combinado</strong> y selecciona <strong>Cuerpo</strong>. Esto insertará el cuerpo completo del correo en tu documento.</li>
+                                  <li>Haz clic en <strong>Finalizar y combinar &gt; Enviar mensajes de correo electrónico...</strong>.</li>
+                                  <li>En la ventana que aparece:
+                                    <ul className="list-disc list-inside pl-4 mt-1">
+                                      <li>En el campo <strong>"Para:"</strong>, asegúrate de que esté seleccionada la columna <strong>Para</strong>.</li>
+                                      <li>En <strong>"Línea de asunto:"</strong>, selecciona la columna <strong>Asunto</strong>.</li>
+                                      <li>Haz clic en <strong>Aceptar</strong>. Outlook enviará los correos.</li>
+                                    </ul>
+                                  </li>
+                                </ol>
+                                <p className="text-xs italic mt-2 text-blue-600">Nota: La apariencia del correo (saltos de línea, etc.) dependerá de cómo Word interprete el texto. La opción con Google Sheets/YAMM suele dar resultados más fiables con cuerpos de texto complejos.</p>
+                              </TabsContent>
+                            </Tabs>
                           </CardContent>
                         </Card>
                     </div>
