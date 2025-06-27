@@ -558,18 +558,23 @@ export default function MailMergeWizard() {
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button variant="outline" onClick={handlePrevStep}><ChevronLeft className="mr-2 h-4 w-4" /> Atrás</Button>
-              <div className="flex gap-4">
+              <div className="flex items-start gap-4">
                   <Button variant="secondary" onClick={handleDownload} disabled={previews.length === 0}>
                       <Download className="mr-2 h-4 w-4"/> Descargar CSV
                   </Button>
-                  <Button onClick={handleSendEmails} disabled={previews.length === 0 || isSending}>
-                      {isSending ? (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                          <Send className="mr-2 h-4 w-4" />
-                      )}
-                      {isSending ? 'Enviando...' : 'Enviar Correos'}
-                  </Button>
+                  <div className="flex flex-col items-end">
+                      <Button onClick={handleSendEmails} disabled={previews.length === 0 || isSending}>
+                          {isSending ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                              <Send className="mr-2 h-4 w-4" />
+                          )}
+                          {isSending ? 'Enviando...' : 'Enviar Correos'}
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2 text-right">
+                          Para pruebas, se enviará desde <strong>onboarding@resend.dev</strong> solo a tu correo.<br/>Para usar tu propio remitente, debes <a href="https://resend.com/docs/introduction" target="_blank" rel="noopener noreferrer" className="underline font-medium">verificar un dominio en Resend</a>.
+                      </p>
+                  </div>
               </div>
             </CardFooter>
           </Card>
