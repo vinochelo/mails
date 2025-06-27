@@ -539,7 +539,7 @@ export default function MailMergeWizard() {
                   <Button variant="secondary" onClick={handleDownload} disabled={previews.length === 0}>
                       <Download className="mr-2 h-4 w-4"/> Descargar CSV
                   </Button>
-                  <Button onClick={() => toast({ title: 'Simulación de Envío', description: `Función no implementada. Descarga el CSV para enviarlo con tu cliente de correo.`})} disabled={previews.length === 0}>
+                  <Button onClick={() => toast({ title: 'Simulación de Envío Exitosa', description: `En una app real, ${previews.length} correos habrían sido enviados. Por ahora, utiliza el archivo CSV.`})} disabled={previews.length === 0}>
                       <Send className="mr-2 h-4 w-4"/> Enviar Correos
                   </Button>
               </div>
