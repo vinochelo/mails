@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { emailAutocompletion } from '@/ai/flows/email-autocompletion';
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { sendEmailsAction } from '@/app/actions/send-email';
 
 type ParsedFileData = {
   name: string;
@@ -151,6 +152,7 @@ export default function MailMergeWizard() {
   const [emailTemplate, setEmailTemplate] = useState('Estimados señores de {{NOMBRE}},\n\nPor medio de la presente, nos dirigimos a ustedes con el fin de solicitar la anulación de los siguientes comprobantes registrados en el SRI.\n\nEl motivo de la presente solicitud de anulación, junto con el detalle de los comprobantes, se encuentra a continuación:\n\n{{RAZON_SOCIAL_EMISOR}} | {{RUC}}\n\n{{invoice_details}}\n\nAgradecemos de antemano su pronta gestión y colaboración.\n\nSaludos cordiales,\n\nVinicio Velastegui\nContabilidad RM');
   const [commonStructures, setCommonStructures] = useState('Solicitud de anulación. Anular facturas SRI. Motivo de anulación.');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [previews, setPreviews] = useState<{ to: string, body: string, recipient: string }[]>([]);
   const [previewIndex, setPreviewIndex] = useState(0);
 
@@ -332,6 +334,27 @@ export default function MailMergeWizard() {
     toast({ title: 'Descarga Iniciada', description: 'El archivo CSV con los correos se está descargando.' });
   };
   
+  const handleSendEmails = async () => {
+    if (previews.length === 0) {
+      toast({ title: 'Nada para enviar', description: 'No hay correos generados para enviar.', variant: 'destructive' });
+      return;
+    }
+    setIsSending(true);
+    try {
+      const result = await sendEmailsAction(previews);
+      if (result.success) {
+        toast({ title: '¡Éxito!', description: result.message });
+      } else {
+        toast({ title: 'Error al enviar', description: result.error, variant: 'destructive' });
+      }
+    } catch (error) {
+      console.error("Client-side send error:", error);
+      toast({ title: 'Error inesperado', description: 'Ocurrió un error al contactar el servidor.', variant: 'destructive' });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const renderStep = () => {
     switch (step) {
       case 1:
@@ -539,8 +562,13 @@ export default function MailMergeWizard() {
                   <Button variant="secondary" onClick={handleDownload} disabled={previews.length === 0}>
                       <Download className="mr-2 h-4 w-4"/> Descargar CSV
                   </Button>
-                  <Button onClick={() => toast({ title: 'Simulación de Envío Exitosa', description: `En una app real, ${previews.length} correos habrían sido enviados. Por ahora, utiliza el archivo CSV.`})} disabled={previews.length === 0}>
-                      <Send className="mr-2 h-4 w-4"/> Enviar Correos
+                  <Button onClick={handleSendEmails} disabled={previews.length === 0 || isSending}>
+                      {isSending ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                          <Send className="mr-2 h-4 w-4" />
+                      )}
+                      {isSending ? 'Enviando...' : 'Enviar Correos'}
                   </Button>
               </div>
             </CardFooter>
