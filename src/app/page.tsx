@@ -10,7 +10,7 @@ export default function Home() {
       </main>
       <footer className="py-4">
         <div className="container mx-auto text-center text-sm text-muted-foreground">
-          <p>Hecho con ❤️ por MailMergeXLS</p>
+          <p>Hecho con ❤️ por Asistente de Envios Masivos RM</p>
         </div>
       </footer>
     </div>
