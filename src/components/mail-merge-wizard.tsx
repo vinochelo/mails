@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef } from 'react';
 import * as XLSX from 'xlsx';
-import { UploadCloud, FileCheck2, Columns, MailPlus, Sparkles, Eye, Download, Send, ChevronRight, ChevronLeft, Loader2, HelpCircle } from 'lucide-react';
+import { UploadCloud, FileCheck2, Columns, MailPlus, Sparkles, Eye, Download, ChevronRight, ChevronLeft, Loader2, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -12,8 +12,6 @@ import { cn } from '@/lib/utils';
 import { emailAutocompletion } from '@/ai/flows/email-autocompletion';
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { sendEmailsAction } from '@/app/actions/send-email';
-import { Separator } from '@/components/ui/separator';
 
 type ParsedFileData = {
   name: string;
@@ -108,7 +106,7 @@ const StepIndicator = ({ currentStep }: { currentStep: number }) => {
     { num: 1, title: 'Subir Archivos', icon: UploadCloud },
     { num: 2, title: 'Mapear Columnas', icon: Columns },
     { num: 3, title: 'Crear Correo', icon: MailPlus },
-    { num: 4, title: 'Vista Previa y Envío', icon: Send },
+    { num: 4, title: 'Vista Previa y Envío', icon: Download },
   ];
   return (
     <div className="flex items-start justify-center mb-12">
@@ -153,7 +151,6 @@ export default function MailMergeWizard() {
   const [emailTemplate, setEmailTemplate] = useState('Estimados señores de {{NOMBRE}},\n\nPor medio de la presente, nos dirigimos a ustedes con el fin de solicitar la anulación de los siguientes comprobantes registrados en el SRI.\n\nEl motivo de la presente solicitud de anulación, junto con el detalle de los comprobantes, se encuentra a continuación:\n\n{{RAZON_SOCIAL_EMISOR}} | {{RUC}}\n\n{{invoice_details}}\n\nAgradecemos de antemano su pronta gestión y colaboración.\n\nSaludos cordiales,\n\nVinicio Velastegui\nContabilidad RM');
   const [commonStructures, setCommonStructures] = useState('Solicitud de anulación. Anular facturas SRI. Motivo de anulación.');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isSending, setIsSending] = useState(false);
   const [previews, setPreviews] = useState<{ to: string, body: string, recipient: string }[]>([]);
   const [previewIndex, setPreviewIndex] = useState(0);
 
@@ -335,26 +332,6 @@ export default function MailMergeWizard() {
     toast({ title: 'Descarga Iniciada', description: 'El archivo CSV con los correos se está descargando.' });
   };
   
-  const handleSendEmails = async () => {
-    if (previews.length === 0) {
-      toast({ title: 'Nada para enviar', description: 'No hay correos generados para enviar.', variant: 'destructive' });
-      return;
-    }
-    setIsSending(true);
-    try {
-      const result = await sendEmailsAction(previews);
-      if (result.success) {
-        toast({ title: '¡Éxito!', description: result.message });
-      } else {
-        toast({ title: 'Error al enviar', description: result.error, variant: 'destructive' });
-      }
-    } catch (error) {
-      console.error("Client-side send error:", error);
-      toast({ title: 'Error inesperado', description: 'Ocurrió un error al contactar el servidor.', variant: 'destructive' });
-    } finally {
-      setIsSending(false);
-    }
-  };
 
   const renderStep = () => {
     switch (step) {
@@ -557,36 +534,13 @@ export default function MailMergeWizard() {
                     <p className="text-center text-muted-foreground">No hay vistas previas para mostrar.</p>
                 )}
             </CardContent>
-            <CardFooter className="flex justify-between items-start pt-6">
+            <CardFooter className="flex justify-between items-center pt-6">
               <Button variant="outline" onClick={handlePrevStep}>
                 <ChevronLeft className="mr-2 h-4 w-4" /> Atrás
               </Button>
-              <div className="flex items-start gap-6">
-                <div className="flex flex-col items-center text-center gap-2">
-                  <p className="font-semibold">Opción 1: Envío Manual</p>
-                  <p className="text-sm text-muted-foreground max-w-xs">Recomendado si no tienes un dominio propio verificado.</p>
-                  <Button variant="secondary" onClick={handleDownload} disabled={previews.length === 0}>
-                    <Download className="mr-2 h-4 w-4" /> Descargar CSV para Outlook/Gmail
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-1">Usa la guía de arriba para enviarlos.</p>
-                </div>
-                <Separator orientation="vertical" className="h-28" />
-                <div className="flex flex-col items-center text-center gap-2">
-                    <p className="font-semibold">Opción 2: Envío Automático</p>
-                    <p className="text-sm text-muted-foreground max-w-xs">Requiere un dominio verificado en Resend.</p>
-                    <Button onClick={handleSendEmails} disabled={previews.length === 0 || isSending}>
-                        {isSending ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                            <Send className="mr-2 h-4 w-4" />
-                        )}
-                        {isSending ? 'Enviando...' : 'Enviar con Resend'}
-                    </Button>
-                     <p className="text-xs text-muted-foreground mt-1 text-center max-w-xs">
-                        El modo de prueba enviará desde <strong>onboarding@resend.dev</strong> solo a tu correo de registro.
-                    </p>
-                </div>
-              </div>
+              <Button variant="secondary" onClick={handleDownload} disabled={previews.length === 0}>
+                <Download className="mr-2 h-4 w-4" /> Descargar CSV para Outlook/Gmail
+              </Button>
             </CardFooter>
           </Card>
         );
