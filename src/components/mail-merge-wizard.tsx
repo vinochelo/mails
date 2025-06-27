@@ -141,13 +141,8 @@ export default function MailMergeWizard() {
     }
     setIsGenerating(true);
     try {
-      const rawRecipientData = mockDataFile.rows[0];
-      const recipientData = Object.fromEntries(
-        Object.entries(rawRecipientData).map(([key, value]) => [key, String(value)])
-      );
       const template = emailTemplate;
-      
-      const res = await emailAutocompletion({ template, recipientData, commonStructures });
+      const res = await emailAutocompletion({ template, commonStructures });
       setEmailTemplate(res.completedEmail);
       toast({ title: "¡Éxito!", description: "El correo ha sido mejorado con IA." });
     } catch (error) {
@@ -221,9 +216,13 @@ export default function MailMergeWizard() {
             <CardContent>
               <Alert>
                 <Info className="h-4 w-4" />
-                <AlertTitle>Modo de Simulación</AlertTitle>
+                <AlertTitle>Modo de Simulación y Estructura de Archivos</AlertTitle>
                 <AlertDescription>
-                  Esta es una demostración. La carga de archivos está simulada con datos de ejemplo.
+                  <p>Esta es una demostración. La carga de archivos está simulada con datos de ejemplo. Para que la combinación funcione, sus archivos deben tener una estructura específica:</p>
+                  <ul className="list-disc pl-5 mt-2 text-xs">
+                      <li><b>Archivo de Correos:</b> Debe contener una columna para el RUC (o ID único) y otra para el correo electrónico. Por ejemplo: <code>RUC</code>, <code>Correo Electrónico</code>.</li>
+                      <li><b>Archivo de Datos:</b> Debe contener una columna con el mismo RUC (o ID único) para cruzar los datos, y columnas adicionales que quiera usar en su correo. Por ejemplo: <code>RUC_CLIENTE</code>, <code>NRO_FACTURA</code>, <code>MONTO_DEUDA</code>.</li>
+                  </ul>
                 </AlertDescription>
               </Alert>
               <div className="flex flex-col md:flex-row gap-6 mt-6">

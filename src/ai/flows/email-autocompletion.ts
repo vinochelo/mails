@@ -15,11 +15,10 @@ const EmailAutocompletionInputSchema = z.object({
   template: z
     .string()
     .describe('The email template with placeholders for recipient data.'),
-  recipientData: z.record(z.string()).describe('Recipient-specific data.'),
   commonStructures: z
     .string()
     .describe(
-      'Common sentence structures or phrases to be used for autocompletion.'
+      'Key ideas or phrases to incorporate into the email.'
     ),
 });
 
@@ -47,22 +46,21 @@ const prompt = ai.definePrompt({
   name: 'emailAutocompletionPrompt',
   input: {schema: EmailAutocompletionInputSchema},
   output: {schema: EmailAutocompletionOutputSchema},
-  prompt: `You are an AI-powered email assistant that helps users autocomplete parts of their emails.
+  prompt: `You are an expert writing assistant. Your task is to refine and improve an email template based on a user's key ideas.
 
-  Based on the following email template, recipient-specific data, and common sentence structures, generate a completed email.
+**Instructions:**
+1.  Read the original email template provided by the user.
+2.  Read the key ideas or phrases the user wants to include.
+3.  Rewrite the email template to be more professional, clear, and persuasive, incorporating the user's key ideas.
+4.  **Crucially, you MUST preserve all placeholders in the format \`{{placeholder_name}}\` or \`{{invoice_details}}\`. Do not replace them with example data.** The output should be a generic template, not a filled-in email.
 
-  Email Template:
-  {{template}}
+Original Email Template:
+{{template}}
 
-  Recipient Data:
-  {{#each recipientData}}
-    {{@key}}: {{{this}}}
-  {{/each}}
+Key Ideas to Incorporate:
+{{commonStructures}}
 
-  Common Sentence Structures:
-  {{commonStructures}}
-
-  Completed Email:`,
+Refined Email Template:`,
 });
 
 const emailAutocompletionFlow = ai.defineFlow(
