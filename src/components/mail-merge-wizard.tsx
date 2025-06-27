@@ -28,12 +28,12 @@ const mockEmailFile = {
 const mockDataFile = {
   name: 'datos.xlsx',
   size: 2048,
-  headers: ['RUC_CLIENTE', 'RAZON_SOCIAL', 'NRO_FACTURA', 'MONTO_DEUDA', 'FECHA_VENCIMIENTO'],
+  headers: ['TIPO_COMP', 'RUC', 'RAZON_SOCIAL_EMISOR', 'SERIE_COMPROBANTE', 'OBSERVACIONES'],
   rows: [
-    { RUC_CLIENTE: '20551234567', RAZON_SOCIAL: 'Empresa A S.A.C.', NRO_FACTURA: 'F001-0123', MONTO_DEUDA: 500.00, FECHA_VENCIMIENTO: '2024-08-30' },
-    { RUC_CLIENTE: '20551234567', RAZON_SOCIAL: 'Empresa A S.A.C.', NRO_FACTURA: 'F001-0125', MONTO_DEUDA: 1250.75, FECHA_VENCIMIENTO: '2024-09-15' },
-    { RUC_CLIENTE: '20557654321', RAZON_SOCIAL: 'Empresa B S.R.L.', NRO_FACTURA: 'E001-456', MONTO_DEUDA: 3420.50, FECHA_VENCIMIENTO: '2024-08-25' },
-    { RUC_CLIENTE: '10451234567', RAZON_SOCIAL: 'Carlos Rodriguez', NRO_FACTURA: 'B001-987', MONTO_DEUDA: 150.00, FECHA_VENCIMIENTO: '2024-09-05' },
+    { TIPO_COMP: 'FACTURA', RUC: '20551234567', RAZON_SOCIAL_EMISOR: 'Mi Empresa S.A.C', SERIE_COMPROBANTE: 'F001-0123', OBSERVACIONES: 'Deuda S/ 500.00, vence 2024-08-30' },
+    { TIPO_COMP: 'FACTURA', RUC: '20551234567', RAZON_SOCIAL_EMISOR: 'Mi Empresa S.A.C', SERIE_COMPROBANTE: 'F001-0125', OBSERVACIONES: 'Deuda S/ 1250.75, vence 2024-09-15' },
+    { TIPO_COMP: 'FACTURA', RUC: '20557654321', RAZON_SOCIAL_EMISOR: 'Otra Empresa S.R.L.', SERIE_COMPROBANTE: 'E001-456', OBSERVACIONES: 'Deuda S/ 3420.50, vence 2024-08-25' },
+    { TIPO_COMP: 'BOLETA', RUC: '10451234567', RAZON_SOCIAL_EMISOR: 'Mi Empresa S.A.C', SERIE_COMPROBANTE: 'B001-987', OBSERVACIONES: 'Deuda S/ 150.00, vence 2024-09-05' },
   ],
 };
 
@@ -178,19 +178,21 @@ export default function MailMergeWizard() {
             body = body.replace(placeholder, String(value));
           });
           
-          const invoiceDetails = rows.map(row => `- Factura: ${row.NRO_FACTURA}, Monto: S/ ${Number(row.MONTO_DEUDA).toFixed(2)}, Vence: ${row.FECHA_VENCIMIENTO}`).join('\n');
+          const invoiceDetails = rows.map(row => `- Comprobante: ${row.SERIE_COMPROBANTE} (${row.TIPO_COMP}). ${row.OBSERVACIONES}`).join('\n');
           body = body.replace(/\{\{invoice_details\}\}/g, invoiceDetails);
           
           // Then, replace placeholders from email file
           const emailRow = mockEmailFile.rows.find(eRow => String(eRow[mappings.emailRuc]) === String(ruc));
+          let recipientName = ruc;
           if (emailRow) {
             Object.entries(emailRow).forEach(([key, value]) => {
               const placeholder = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
               body = body.replace(placeholder, String(value));
             });
+            recipientName = emailRow.NOMBRE || ruc;
           }
 
-          return { to, body, recipient: firstRow.RAZON_SOCIAL || ruc };
+          return { to, body, recipient: recipientName };
         });
 
         setPreviews(generatedPreviews);
@@ -222,7 +224,7 @@ export default function MailMergeWizard() {
                   <p>Esta es una demostración. La carga de archivos está simulada con datos de ejemplo. Para que la combinación funcione, sus archivos deben tener una estructura específica:</p>
                   <ul className="list-disc pl-5 mt-2 text-xs">
                     <li><b>Archivo de Correos:</b> Debe contener una columna para el identificador único (ej. <code>RUC</code>), el nombre del contacto (ej. <code>NOMBRE</code>) y el email (ej. <code>CORREO</code>).</li>
-                    <li><b>Archivo de Datos:</b> Debe contener una columna con el mismo identificador único (ej. <code>RUC_CLIENTE</code>) para cruzar los datos, y las columnas con la información que desea incluir en el correo (ej. <code>NRO_FACTURA</code>, <code>MONTO_DEUDA</code>).</li>
+                    <li><b>Archivo de Datos:</b> Debe contener una columna con el mismo identificador único (ej. <code>RUC</code>) para cruzar los datos, y las columnas con la información que desea incluir en el correo (ej. <code>TIPO_COMP</code>, <code>SERIE_COMPROBANTE</code>, <code>OBSERVACIONES</code>).</li>
                   </ul>
                 </AlertDescription>
               </Alert>
