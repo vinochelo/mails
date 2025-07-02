@@ -173,7 +173,7 @@ export default function MailMergeWizard() {
                 const workbook = XLSX.read(data, { type: 'array' });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-                const headers = ((XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0] || []) as string[]).map(h => h.trim());
+                const headers = ((XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0] || []) as string[]).map(h => String(h).trim());
                 if(headers.length === 0) {
                     throw new Error("El archivo parece estar vacío o no tiene cabeceras.");
                 }
@@ -370,14 +370,14 @@ export default function MailMergeWizard() {
                             <Label htmlFor="email-ruc">Columna con RUC del destinatario</Label>
                             <Select value={mappings.emailRuc} onValueChange={(v) => setMappings(m => ({...m, emailRuc: v}))}>
                                 <SelectTrigger id="email-ruc"><SelectValue placeholder="Seleccionar columna..." /></SelectTrigger>
-                                <SelectContent>{emailsFile?.headers.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                                <SelectContent>{emailsFile?.headers.map((h, i) => <SelectItem key={`email-ruc-${h}-${i}`} value={h}>{h}</SelectItem>)}</SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email-address">Columna con correo electrónico</Label>
                             <Select value={mappings.emailAddress} onValueChange={(v) => setMappings(m => ({...m, emailAddress: v}))}>
                                 <SelectTrigger id="email-address"><SelectValue placeholder="Seleccionar columna..." /></SelectTrigger>
-                                <SelectContent>{emailsFile?.headers.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                                <SelectContent>{emailsFile?.headers.map((h, i) => <SelectItem key={`email-address-${h}-${i}`} value={h}>{h}</SelectItem>)}</SelectContent>
                             </Select>
                         </div>
                     </div>
@@ -388,7 +388,7 @@ export default function MailMergeWizard() {
                         <Label htmlFor="data-ruc">Columna con RUC para cruzar datos</Label>
                         <Select value={mappings.dataRuc} onValueChange={(v) => setMappings(m => ({...m, dataRuc: v}))}>
                             <SelectTrigger id="data-ruc"><SelectValue placeholder="Seleccionar columna..." /></SelectTrigger>
-                            <SelectContent>{dataFile?.headers.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                            <SelectContent>{dataFile?.headers.map((h, i) => <SelectItem key={`data-ruc-${h}-${i}`} value={h}>{h}</SelectItem>)}</SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -428,9 +428,9 @@ export default function MailMergeWizard() {
                   </CardHeader>
                   <CardContent className="text-sm max-h-[450px] overflow-y-auto">
                     <p className="font-semibold">Datos Generales:</p>
-                    {allDataFields.map(f => <code key={f} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
+                    {allDataFields.map((f, i) => <code key={`placeholder-data-${f}-${i}`} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
                     <p className="font-semibold mt-2">Datos de Correo:</p>
-                    {emailsFile?.headers.map(f => <code key={f} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
+                    {emailsFile?.headers.map((f, i) => <code key={`placeholder-email-${f}-${i}`} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
                     <p className="font-semibold mt-2">Detalles (Multi-línea):</p>
                     <code className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;invoice_details&#125;&#125;</code>
                   </CardContent>
