@@ -2,14 +2,13 @@
 
 import React, { useState, useMemo, useRef } from 'react';
 import * as XLSX from 'xlsx';
-import { UploadCloud, FileCheck2, Columns, MailPlus, Sparkles, Eye, Download, ChevronRight, ChevronLeft, Loader2, HelpCircle } from 'lucide-react';
+import { UploadCloud, FileCheck2, Columns, MailPlus, Eye, Download, ChevronRight, ChevronLeft, Loader2, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { emailAutocompletion } from '@/ai/flows/email-autocompletion';
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -149,7 +148,6 @@ export default function MailMergeWizard() {
   const [isParsingData, setIsParsingData] = useState(false);
   const [mappings, setMappings] = useState({ emailRuc: '', emailAddress: '', dataRuc: '' });
   const [emailTemplate, setEmailTemplate] = useState('Estimados señores de {{NOMBRE}},\n\nPor medio de la presente, nos dirigimos a ustedes con el fin de solicitar la anulación de los siguientes comprobantes registrados en el SRI.\n\nEl motivo de la presente solicitud de anulación, junto con el detalle de los comprobantes, se encuentra a continuación:\n\n{{RAZON_SOCIAL_EMISOR}} | {{RUC}}\n\n{{invoice_details}}\n\nAgradecemos de antemano su pronta gestión y colaboración.\n\nSaludos cordiales,\n\nVinicio Velastegui\nContabilidad        \nQuito - Ecuador\nTelf: 023976200 / 022945950 Ext: 1405\nVinicio.velastegui@modarm.com');
-  const [commonStructures, setCommonStructures] = useState('Solicitud de anulación. Anular facturas SRI. Motivo de anulación.');
   const [isGenerating, setIsGenerating] = useState(false);
   const [previews, setPreviews] = useState<{ to: string, body: string, recipient: string }[]>([]);
   const [previewIndex, setPreviewIndex] = useState(0);
@@ -221,24 +219,6 @@ export default function MailMergeWizard() {
       } finally {
           setIsParsingData(false);
       }
-  };
-
-  const handleGenerateWithAI = async () => {
-    if (!emailTemplate) {
-      toast({ title: "Error", description: "El cuerpo del correo no puede estar vacío.", variant: "destructive" });
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const res = await emailAutocompletion({ template: emailTemplate, commonStructures });
-      setEmailTemplate(res.completedEmail);
-      toast({ title: "¡Éxito!", description: "El correo ha sido mejorado con IA." });
-    } catch (error) {
-      console.error("AI generation failed:", error);
-      toast({ title: "Error de IA", description: "No se pudo generar el texto.", variant: "destructive" });
-    } finally {
-      setIsGenerating(false);
-    }
   };
   
   const handleGeneratePreviews = () => {
@@ -403,64 +383,48 @@ export default function MailMergeWizard() {
         );
       case 3:
         return (
-          <>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle>Paso 3: Crear Plantilla de Correo</CardTitle>
-                  <CardDescription>Diseñe el correo que se enviará. Use placeholders para los datos.</CardDescription>
-                </CardHeader>
-                <CardContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>Paso 3: Crear Plantilla de Correo</CardTitle>
+              <CardDescription>Diseñe el correo que se enviará. Use placeholders para los datos.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
                   <Textarea
                     value={emailTemplate}
                     onChange={(e) => setEmailTemplate(e.target.value)}
                     placeholder="Escriba su correo aquí..."
-                    rows={15}
+                    rows={25}
                     className="text-base"
                   />
-                </CardContent>
-              </Card>
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Placeholders</CardTitle>
-                    <CardDescription>Variables disponibles de sus archivos.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-sm max-h-[450px] overflow-y-auto">
-                    <p className="font-semibold">Datos Generales:</p>
-                    {allDataFields.map((f, i) => <code key={`placeholder-data-${f}-${i}`} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
-                    <p className="font-semibold mt-2">Datos de Correo:</p>
-                    {emailsFile?.headers.map((f, i) => <code key={`placeholder-email-${f}-${i}`} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
-                    <p className="font-semibold mt-2">Detalles (Multi-línea):</p>
-                    <code className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;invoice_details&#125;&#125;</code>
-                  </CardContent>
-                </Card>
+                </div>
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Placeholders</CardTitle>
+                      <CardDescription>Variables disponibles de sus archivos.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-sm max-h-[540px] overflow-y-auto">
+                      <p className="font-semibold">Datos Generales:</p>
+                      {allDataFields.map((f, i) => <code key={`placeholder-data-${f}-${i}`} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
+                      <p className="font-semibold mt-2">Datos de Correo:</p>
+                      {emailsFile?.headers.map((f, i) => <code key={`placeholder-email-${f}-${i}`} className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;{f}&#125;&#125;</code>)}
+                      <p className="font-semibold mt-2">Detalles (Multi-línea):</p>
+                      <code className="block bg-muted p-1 rounded-sm my-1">&#123;&#123;invoice_details&#125;&#125;</code>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
-            </div>
-
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2"><Sparkles className="text-primary"/> Asistente con IA</CardTitle>
-                <CardDescription>Mejore su correo con inteligencia artificial. La IA refinará el texto basándose en sus ideas clave, manteniendo intactos los placeholders.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Label htmlFor="common-structures">Frases o ideas clave</Label>
-                <Textarea id="common-structures" value={commonStructures} onChange={(e) => setCommonStructures(e.target.value)} placeholder="Ej: Urgente, último aviso, etc." rows={2} />
-                <Button onClick={handleGenerateWithAI} disabled={isGenerating} className="w-full sm:w-auto mt-4">
-                  {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                  Mejorar con IA
-                </Button>
-              </CardContent>
-            </Card>
-
-            <div className="flex justify-between items-center mt-6 border-t pt-6">
+            </CardContent>
+            <CardFooter className="flex justify-between">
               <Button variant="outline" onClick={handlePrevStep}><ChevronLeft className="mr-2 h-4 w-4" /> Atrás</Button>
               <Button onClick={handleGeneratePreviews} disabled={isGenerating}>
                 {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Eye className="mr-2 h-4 w-4" />}
                 Generar Vistas Previas
               </Button>
-            </div>
-          </>
+            </CardFooter>
+          </Card>
         );
        case 4:
         const currentPreview = previews[previewIndex];
