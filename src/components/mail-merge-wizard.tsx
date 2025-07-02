@@ -147,7 +147,7 @@ export default function MailMergeWizard() {
   const [isParsingEmails, setIsParsingEmails] = useState(false);
   const [isParsingData, setIsParsingData] = useState(false);
   const [mappings, setMappings] = useState({ emailRuc: '', emailAddress: '', dataRuc: '' });
-  const [emailTemplate, setEmailTemplate] = useState('Estimados señores de {{NOMBRE}},\n\nPor medio de la presente, nos dirigimos a ustedes con el fin de solicitar la anulación de los siguientes comprobantes registrados en el SRI.\n\nEl motivo de la presente solicitud de anulación, junto con el detalle de los comprobantes, se encuentra a continuación:\n\n{{RAZON_SOCIAL_EMISOR}} | {{RUC}}\n\n{{invoice_details}}\n\nAgradecemos de antemano su pronta gestión y colaboración.\n\nSaludos cordiales,\n\nVinicio Velastegui\nContabilidad        \nQuito - Ecuador\nTelf: 023976200 / 022945950 Ext: 1405\nVinicio.velastegui@modarm.com');
+  const [emailTemplate, setEmailTemplate] = useState('Estimados señores de {{NOMBRE}},\n\nPor medio de la presente, nos dirigimos a ustedes con el fin de solicitar la anulación de los siguientes comprobantes registrados en el SRI.\n\nEl motivo de la anulación junto con el detalle de los comprobantes, se encuentra a continuación:\n\n{{RAZON_SOCIAL_EMISOR}} | {{RUC}}\n\n{{invoice_details}}\n\nAgradecemos de antemano su pronta gestión y colaboración.\n\nSaludos cordiales,\n\nVinicio Velastegui\nContabilidad RM       \nQuito - Ecuador\nTelf: 023976200 / 022945950 Ext: 1405\nVinicio.velastegui@modarm.com');
   const [isGenerating, setIsGenerating] = useState(false);
   const [previews, setPreviews] = useState<{ to: string, body: string, recipient: string }[]>([]);
   const [previewIndex, setPreviewIndex] = useState(0);
