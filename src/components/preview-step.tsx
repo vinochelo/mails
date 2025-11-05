@@ -46,7 +46,7 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
                             <User className="h-6 w-6 text-secondary-foreground" />
                         </div>
                         <div>
-                            <p className="font-semibold text-foreground">{invoices[0]?.['RAZON_SOCIAL_EMISOR'] || recipient.NOMBRE}</p>
+                            <p className="font-semibold text-foreground">{invoices[0]?.RAZON_SOCIAL_EMISOR || recipient.NOMBRE}</p>
                             <p className="text-sm text-muted-foreground flex items-center gap-2">
                             <Mail className="h-4 w-4" />
                             {recipient.CORREO}
@@ -66,9 +66,9 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
                                 </TableHeader>
                                 <TableBody>
                                 {invoices.map((invoice, invIndex) => (
-                                    <TableRow key={`${invoice['SERIE_COMPROBANTE']}-${invIndex}`}>
-                                    <TableCell className="font-medium">{invoice['TIPO_COMPROBANTE']}</TableCell>
-                                    <TableCell>{invoice['SERIE_COMPROBANTE']}</TableCell>
+                                    <TableRow key={`${invoice.SERIE_COMPROBANTE}-${invIndex}`}>
+                                    <TableCell className="font-medium">{invoice.TIPO_COMPROBANTE}</TableCell>
+                                    <TableCell>{invoice.SERIE_COMPROBANTE}</TableCell>
                                     <TableCell>{invoice.OBSERVACIONES}</TableCell>
                                     </TableRow>
                                 ))}

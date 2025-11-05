@@ -14,15 +14,15 @@ interface GenerateStepProps {
 function generateInvoicesTable(invoices: Invoice[]): string {
     const header = `| Tipo de Comprobante | Serie | Observaciones |\n`;
     const rows = invoices.map(inv => 
-        `| ${inv['TIPO_COMPROBANTE']} | ${inv['SERIE_COMPROBANTE']} | ${inv.OBSERVACIONES} |`
+        `| ${inv.TIPO_COMPROBANTE} | ${inv.SERIE_COMPROBANTE} | ${inv.OBSERVACIONES} |`
     ).join('\n');
     return header + rows;
 }
 
 function generateEmailBody(template: string, groupedData: GroupedData): string {
     const { recipient, invoices } = groupedData;
-    const razonSocial = invoices[0]?.['RAZON_SOCIAL_EMISOR'] || recipient.NOMBRE;
-    const rucEmisor = invoices[0]?.['RUC_EMISOR'] || recipient.RUC;
+    const razonSocial = invoices[0]?.RAZON_SOCIAL_EMISOR || recipient.NOMBRE;
+    const rucEmisor = invoices[0]?.RUC_EMISOR || recipient.RUC;
     const recipientEmails = recipient.CORREO;
     const invoicesTable = generateInvoicesTable(invoices);
     
@@ -61,7 +61,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
           const recipientEmails = recipient.CORREO;
           if (!recipientEmails) return null;
 
-          const razonSocial = invoices[0]?.['RAZON_SOCIAL_EMISOR'] || recipient.NOMBRE;
+          const razonSocial = invoices[0]?.RAZON_SOCIAL_EMISOR || recipient.NOMBRE;
           const subject = `Anulación de comprobantes`;
           const body = generateEmailBody(emailTemplate, groupedData);
 
