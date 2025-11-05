@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import type { GroupedData, Invoice } from "@/lib/types";
-import { Mail, Send, RotateCcw } from "lucide-react";
+import { Mail, Send, RotateCcw, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface GenerateStepProps {
   data: Map<string, GroupedData>;
@@ -12,7 +14,7 @@ interface GenerateStepProps {
 }
 
 function generateInvoicesTable(invoices: Invoice[]): string {
-    const header = `| Tipo de Comprobante | Serie | Observaciones |\n`;
+    const header = `| Tipo de Comprobante | Serie | Observaciones |\n|---|---|---|\n`;
     const rows = invoices.map(inv => 
         `| ${inv.TIPO_COMPROBANTE} | ${inv.SERIE_COMPROBANTE} | ${inv.OBSERVACIONES} |`
     ).join('\n');
@@ -37,15 +39,17 @@ function generateEmailBody(template: string, groupedData: GroupedData): string {
 
 export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: GenerateStepProps) {
   const { toast } = useToast();
+  const [sentEmails, setSentEmails] = useState<Set<string>>(new Set());
   const dataArray = Array.from(data.values());
 
-  const handleOpenInOutlook = (recipientEmail: string, subject: string, body: string) => {
+  const handleOpenInOutlook = (recipientRuc: string, recipientEmail: string, subject: string, body: string) => {
     const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoLink;
     toast({
       title: "Abriendo cliente de correo",
       description: `Se está preparando un borrador para ${recipientEmail}.`,
     });
+    setSentEmails(prev => new Set(prev).add(recipientRuc));
   };
 
   return (
@@ -61,16 +65,31 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
           const recipientEmails = recipient.CORREO;
           if (!recipientEmails) return null;
 
+          const isSent = sentEmails.has(recipient.RUC);
           const razonSocial = invoices[0]?.RAZON_SOCIAL_EMISOR || recipient.NOMBRE;
           const subject = `Anulación de comprobantes`;
           const body = generateEmailBody(emailTemplate, groupedData);
 
           return (
-            <Card key={`${recipient.RUC}-${index}`} className="flex flex-col bg-card">
+            <Card 
+              key={`${recipient.RUC}-${index}`} 
+              className={cn(
+                "flex flex-col bg-card transition-colors",
+                isSent && "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+              )}
+            >
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                    <Mail className="h-5 w-5 text-primary" />
+                  <span className={cn(
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10",
+                      isSent && "bg-green-100 dark:bg-green-900"
+                    )}
+                  >
+                    {isSent ? (
+                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    ) : (
+                      <Mail className="h-5 w-5 text-primary" />
+                    )}
                   </span>
                   {razonSocial}
                 </CardTitle>
@@ -85,10 +104,20 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
               <CardFooter>
                 <Button 
                   className="w-full" 
-                  onClick={() => handleOpenInOutlook(recipientEmails, subject, body)}
+                  onClick={() => handleOpenInOutlook(recipient.RUC, recipientEmails, subject, body)}
+                  disabled={isSent}
                 >
-                  <Send className="mr-2 h-4 w-4" />
-                  Abrir en cliente de correo
+                  {isSent ? (
+                    <>
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Cliente de correo abierto
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Abrir en cliente de correo
+                    </>
+                  )}
                 </Button>
               </CardFooter>
             </Card>
