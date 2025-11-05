@@ -30,9 +30,10 @@ function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]):
   for (const invoice of invoices) {
     const rucEmisor = invoice['RUC_EMISOR'];
     if (recipientMap.has(rucEmisor)) {
+      const recipient = recipientMap.get(rucEmisor)!;
       if (!grouped.has(rucEmisor)) {
         grouped.set(rucEmisor, {
-          recipient: recipientMap.get(rucEmisor)!,
+          recipient: recipient,
           invoices: [],
         });
       }
