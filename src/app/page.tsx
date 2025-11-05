@@ -64,7 +64,7 @@ export default function Home() {
 
   const STEPS = ["Subir Datos", "Previsualizar", "Generar Correos"];
 
-  const parseFile = <T>(file: File, startRow: number): Promise<T[]> => {
+  const parseFile = <T extends Record<string, any>>(file: File, startRow: number): Promise<T[]> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -73,13 +73,33 @@ export default function Home() {
           const workbook = XLSX.read(data, { type: 'array' });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          const json = XLSX.utils.sheet_to_json(worksheet, { 
-            range: startRow - 1, 
+          
+          // Convert sheet to array of arrays, forcing all values to be strings
+          const rows: any[][] = XLSX.utils.sheet_to_json(worksheet, {
+            header: 1,
             defval: "",
-            raw: false // Esto asegura que todos los valores se lean como texto formateado
-          }) as T[];
+            raw: true, // Keep raw values to avoid XLSX formatting issues
+          });
+
+          if (rows.length < startRow) {
+            resolve([]);
+            return;
+          }
+
+          const header = rows[startRow - 2].map(h => String(h).trim());
+          const dataRows = rows.slice(startRow - 1);
+
+          const json = dataRows.map(row => {
+            const rowData: T = {} as T;
+            header.forEach((key, index) => {
+              rowData[key as keyof T] = String(row[index] ?? '').trim() as T[keyof T];
+            });
+            return rowData;
+          });
+
           resolve(json);
         } catch (error) {
+          console.error("Error parsing file:", error);
           reject(error);
         }
       };
