@@ -28,7 +28,7 @@ function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]):
   const grouped = new Map<string, GroupedData>();
 
   for (const invoice of invoices) {
-    const rucEmisor = invoice['Ruc Emisor'];
+    const rucEmisor = invoice['RUC_EMISOR'];
     if (recipientMap.has(rucEmisor)) {
       if (!grouped.has(rucEmisor)) {
         grouped.set(rucEmisor, {

@@ -6,11 +6,11 @@ export interface Recipient {
 }
 
 export interface Invoice {
-  'Tipo Comprobante': string;
-  'Serie Comprobante': string;
-  'Ruc Emisor': string;
-  'Razón Social Emisor': string;
-  Observaciones: string;
+  'TIPO_COMPROBANTE': string;
+  'SERIE_COMPROBANTE': string;
+  'RUC_EMISOR': string;
+  'RAZON_SOCIAL_EMISOR': string;
+  'OBSERVACIONES': string;
 }
 
 export interface GroupedData {
