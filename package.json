@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "git:remote": "git remote add origin https://github.com/vinochelo/correos2.git",
     "git:add": "git add .",
-    "git:commit": "git commit -m \"feat: initial commit\"",
+    "git:commit": "git commit -m \"hola mails\"",
     "git:push": "git push -u origin main"
   },
   "dependencies": {

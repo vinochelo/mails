@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'MassMailer Pro',
+  title: 'Hola Mails',
   description: 'Easily send mass emails with custom invoice data.',
 };
 
