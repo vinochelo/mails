@@ -24,11 +24,11 @@ El motivo de la anulación junto con el detalle de los comprobantes, se encuentr
 
 
 function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]): Map<string, GroupedData> {
-  const recipientMap = new Map<string, Recipient>(recipients.map(r => [String(r.RUC), r]));
+  const recipientMap = new Map<string, Recipient>(recipients.map(r => [String(r.RUC).trim(), r]));
   const grouped = new Map<string, GroupedData>();
 
   for (const invoice of invoices) {
-    const rucEmisor = String(invoice['RUC_EMISOR']);
+    const rucEmisor = String(invoice['RUC_EMISOR']).trim();
     if (recipientMap.has(rucEmisor)) {
       const recipient = recipientMap.get(rucEmisor)!;
       if (!grouped.has(rucEmisor)) {
@@ -64,7 +64,11 @@ export default function Home() {
           const workbook = XLSX.read(data, { type: 'array' });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          const json = XLSX.utils.sheet_to_json(worksheet, { range: startRow - 1, defval: "" }) as T[];
+          const json = XLSX.utils.sheet_to_json(worksheet, { 
+            range: startRow - 1, 
+            defval: "",
+            raw: false // Esto asegura que todos los valores se lean como texto formateado
+          }) as T[];
           resolve(json);
         } catch (error) {
           reject(error);
