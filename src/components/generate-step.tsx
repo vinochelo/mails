@@ -6,26 +6,33 @@ import { useToast } from "@/hooks/use-toast";
 
 interface GenerateStepProps {
   data: Map<string, GroupedData>;
+  emailTemplate: string;
   onBack: () => void;
   onStartOver: () => void;
 }
 
-function generatePlainTextBody(razonSocial: string, invoices: Invoice[]): string {
-    const header = `Estimado/a ${razonSocial},\n\nLe enviamos un resumen de sus comprobantes pendientes:\n\n`;
-    
-    const invoiceLines = invoices.map(inv => 
-        `-----------------------------------\n` +
-        `Tipo: ${inv.tipo_comprobante}\n` +
-        `Serie: ${inv.serie_comprobante}\n` +
-        `Observaciones: ${inv.observaciones}`
+function generateInvoicesTable(invoices: Invoice[]): string {
+    const header = `| Tipo de Comprobante | Serie | Observaciones |\n| --- | --- | --- |\n`;
+    const rows = invoices.map(inv => 
+        `| ${inv.tipo_comprobante} | ${inv.serie_comprobante} | ${inv.observaciones} |`
     ).join('\n');
-
-    const footer = `\n\nSaludos cordiales,\nEl equipo de MassMailer Pro`;
-
-    return header + invoiceLines + footer;
+    return header + rows;
 }
 
-export function GenerateStep({ data, onBack, onStartOver }: GenerateStepProps) {
+function generateEmailBody(template: string, groupedData: GroupedData): string {
+    const { recipient, invoices } = groupedData;
+    const razonSocial = invoices[0]?.razon_social || recipient.nombre;
+    const invoicesTable = generateInvoicesTable(invoices);
+    
+    return template
+        .replace(/{{razon_social}}/g, razonSocial)
+        .replace(/{{nombre_destinatario}}/g, recipient.nombre)
+        .replace(/{{correo_destinatario}}/g, recipient.correo)
+        .replace(/{{invoices_table}}/g, invoicesTable);
+}
+
+
+export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: GenerateStepProps) {
   const { toast } = useToast();
   const dataArray = Array.from(data.values());
 
@@ -46,10 +53,11 @@ export function GenerateStep({ data, onBack, onStartOver }: GenerateStepProps) {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {dataArray.map(({ recipient, invoices }) => {
+        {dataArray.map((groupedData) => {
+          const { recipient, invoices } = groupedData;
           const razonSocial = invoices[0]?.razon_social || recipient.nombre;
           const subject = `Resumen de Comprobantes - ${razonSocial}`;
-          const body = generatePlainTextBody(razonSocial, invoices);
+          const body = generateEmailBody(emailTemplate, groupedData);
 
           return (
             <Card key={recipient.ruc} className="flex flex-col bg-card">
