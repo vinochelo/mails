@@ -72,7 +72,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
 
     dataArray.forEach(groupedData => {
         const ruc = groupedData.recipient.RUC;
-        if(selectedEmails.has(ruc) && !sentEmails.has(ruc)) {
+        if(selectedEmails.has(ruc)) {
             const body = generateEmailBody(emailTemplate, groupedData);
             const subject = `Anulación de comprobantes`;
             const mailtoLink = `mailto:${groupedData.recipient.CORREO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -82,7 +82,6 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
     });
 
     setSentEmails(newSent);
-    setSelectedEmails(new Set()); // Deselect all after sending
   }
 
   const handleSelectAll = (checked: boolean) => {
@@ -182,9 +181,8 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
                   </div>
                    <Checkbox 
                      className="mt-1"
-                     checked={isSelected || isSent} 
+                     checked={isSelected}
                      onCheckedChange={(checked) => handleSelectOne(recipient.RUC, checked === true)}
-                     disabled={isSent}
                    />
                 </CardTitle>
               </CardHeader>
@@ -198,12 +196,11 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
                 <Button 
                   className="w-full" 
                   onClick={() => handleOpenInOutlook(recipient.RUC, recipientEmails, subject, body)}
-                  disabled={isSent}
                 >
                   {isSent ? (
                     <>
                       <CheckCircle className="mr-2 h-4 w-4" />
-                      Correo Abierto
+                      Reabrir Correo
                     </>
                   ) : (
                     <>
