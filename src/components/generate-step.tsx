@@ -17,11 +17,11 @@ interface GenerateStepProps {
 }
 
 function generateInvoicesTable(invoices: Invoice[]): string {
-    const header = `Tipo de Comprobante - Serie - Observaciones\n`;
+    const header = `Tipo de Comprobante - Serie - Observaciones`;
     const rows = invoices.map(inv => 
         `${inv.TIPO_COMPROBANTE || ''} - ${inv.SERIE_COMPROBANTE || ''} - ${inv.OBSERVACIONES || ''}`
-    ).join('\n');
-    return header + rows;
+    );
+    return [header, ...rows].join('\n');
 }
 
 
@@ -54,7 +54,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
     setSentEmails(prev => new Set(prev).add(recipientRuc));
   };
   
-  const handleBatchOpen = () => {
+   const handleBatchOpen = () => {
      if (selectedEmails.size === 0) {
       toast({
         variant: "destructive",
@@ -70,31 +70,31 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
     });
 
     const newSent = new Set(sentEmails);
+    let openedCount = 0;
 
-    dataArray.forEach(groupedData => {
+    dataArray.forEach((groupedData, index) => {
         const ruc = groupedData.recipient.RUC;
         if(selectedEmails.has(ruc)) {
             const body = generateEmailBody(emailTemplate, groupedData);
             const subject = `Anulación de comprobantes`;
             const mailtoLink = `mailto:${groupedData.recipient.CORREO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             
-            // This approach is more robust against popup blockers.
-            // It opens a new window and then navigates it to the mailto link.
-            const newWindow = window.open("", "_blank");
-            if (newWindow) {
-              newWindow.location.href = mailtoLink;
-              // Some browsers close the window immediately after mailto, others don't.
-              // A small delay before closing can help in some cases, but it's often better to just leave it.
-            } else {
-              // If the window failed to open, it was likely blocked.
-              // We can't do much more here, the user needs to allow popups.
-              console.warn("Could not open a new window. It might have been blocked by a popup blocker.");
-            }
+            // Introduce a delay to prevent popup blockers from stopping all windows.
+            setTimeout(() => {
+                const newWindow = window.open(mailtoLink, `_blank_email_${index}`);
+                if (!newWindow) {
+                    console.warn(`Could not open a new window for RUC ${ruc}. It might have been blocked by a popup blocker.`);
+                }
+            }, index * 300); // 300ms delay between each opening
+
             newSent.add(ruc);
+            openedCount++;
         }
     });
 
-    setSentEmails(newSent);
+    if (openedCount > 0) {
+        setSentEmails(newSent);
+    }
   }
 
   const handleSelectAll = (checked: boolean) => {
