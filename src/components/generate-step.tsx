@@ -19,10 +19,11 @@ interface GenerateStepProps {
 function generateInvoicesTable(invoices: Invoice[]): string {
     const header = `Tipo de Comprobante - Serie - Observaciones\n`;
     const rows = invoices.map(inv => 
-        `${inv.TIPO_COMPROBANTE} - ${inv.SERIE_COMPROBANTE} - ${inv.OBSERVACIONES}`
+        `${inv.TIPO_COMPROBANTE || ''} - ${inv.SERIE_COMPROBANTE || ''} - ${inv.OBSERVACIONES || ''}`
     ).join('\n');
     return header + rows;
 }
+
 
 function generateEmailBody(template: string, groupedData: GroupedData): string {
     const { recipient, invoices } = groupedData;
@@ -76,7 +77,19 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
             const body = generateEmailBody(emailTemplate, groupedData);
             const subject = `Anulación de comprobantes`;
             const mailtoLink = `mailto:${groupedData.recipient.CORREO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.open(mailtoLink, '_blank');
+            
+            // This approach is more robust against popup blockers.
+            // It opens a new window and then navigates it to the mailto link.
+            const newWindow = window.open("", "_blank");
+            if (newWindow) {
+              newWindow.location.href = mailtoLink;
+              // Some browsers close the window immediately after mailto, others don't.
+              // A small delay before closing can help in some cases, but it's often better to just leave it.
+            } else {
+              // If the window failed to open, it was likely blocked.
+              // We can't do much more here, the user needs to allow popups.
+              console.warn("Could not open a new window. It might have been blocked by a popup blocker.");
+            }
             newSent.add(ruc);
         }
     });
