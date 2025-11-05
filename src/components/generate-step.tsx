@@ -79,21 +79,23 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
               )}
             >
               <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <span className={cn(
-                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10",
-                      isSent && "bg-green-100 dark:bg-green-900"
+                <CardTitle className="flex items-start gap-3">
+                   <span className={cn(
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold bg-primary/10",
+                      isSent && "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
                     )}
                   >
                     {isSent ? (
-                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      <CheckCircle className="h-5 w-5" />
                     ) : (
-                      <Mail className="h-5 w-5 text-primary" />
+                      <span>{index + 1}</span>
                     )}
                   </span>
-                  {razonSocial}
+                  <div className="flex-1">
+                    {razonSocial}
+                    <CardDescription className="mt-1">Para: {recipientEmails}</CardDescription>
+                  </div>
                 </CardTitle>
-                <CardDescription>Para: {recipientEmails}</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-2">
                 <p className="font-semibold text-sm">Asunto: {subject}</p>
