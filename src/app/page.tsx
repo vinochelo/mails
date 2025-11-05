@@ -24,7 +24,7 @@ El motivo de la anulación junto con el detalle de los comprobantes, se encuentr
 
 
 function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]): Map<string, GroupedData> {
-  const recipientMap = new Map<string, Recipient>(recipients.map(r => [r.ruc, r]));
+  const recipientMap = new Map<string, Recipient>(recipients.map(r => [r.RUC, r]));
   const grouped = new Map<string, GroupedData>();
 
   for (const invoice of invoices) {
@@ -53,7 +53,7 @@ export default function Home() {
 
   const STEPS = ["Subir Datos", "Previsualizar", "Generar Correos"];
 
-  const parseFile = <T>(file: File): Promise<T[]> => {
+  const parseFile = <T>(file: File, startRow: number): Promise<T[]> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -62,7 +62,7 @@ export default function Home() {
           const workbook = XLSX.read(data, { type: 'array' });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          const json = XLSX.utils.sheet_to_json(worksheet) as T[];
+          const json = XLSX.utils.sheet_to_json(worksheet, { range: startRow - 1 }) as T[];
           resolve(json);
         } catch (error) {
           reject(error);
@@ -73,10 +73,10 @@ export default function Home() {
     });
   };
   
-  const handleRecipientsUpload = async (file: File) => {
+  const handleRecipientsUpload = async (file: File, startRow: number) => {
     setRecipientFile(file);
     try {
-        const parsedRecipients = await parseFile<Recipient>(file);
+        const parsedRecipients = await parseFile<Recipient>(file, startRow);
         setRecipients(parsedRecipients);
         toast({
             title: "Archivo de destinatarios cargado",
@@ -92,10 +92,10 @@ export default function Home() {
     }
   };
 
-  const handleInvoicesUpload = async (file: File) => {
+  const handleInvoicesUpload = async (file: File, startRow: number) => {
     setInvoiceFile(file);
      try {
-        const parsedInvoices = await parseFile<Invoice>(file);
+        const parsedInvoices = await parseFile<Invoice>(file, startRow);
         setInvoices(parsedInvoices);
         toast({
             title: "Archivo de comprobantes cargado",

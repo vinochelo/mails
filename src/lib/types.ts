@@ -1,8 +1,8 @@
 export interface Recipient {
-  ruc: string;
-  codigo: string;
-  nombre: string;
-  correo: string;
+  RUC: string;
+  CODIGO: string;
+  NOMBRE: string;
+  CORREO: string;
 }
 
 export interface Invoice {

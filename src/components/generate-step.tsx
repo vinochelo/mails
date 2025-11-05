@@ -13,6 +13,7 @@ interface GenerateStepProps {
 
 function generateInvoicesTable(invoices: Invoice[]): string {
     const header = `| Tipo de Comprobante | Serie | Observaciones |\n`;
+    const separator = `| --- | --- | --- |\n`;
     const rows = invoices.map(inv => 
         `| ${inv.tipo_comprobante} | ${inv.serie_comprobante} | ${inv.observaciones} |`
     ).join('\n');
@@ -21,15 +22,16 @@ function generateInvoicesTable(invoices: Invoice[]): string {
 
 function generateEmailBody(template: string, groupedData: GroupedData): string {
     const { recipient, invoices } = groupedData;
-    const razonSocial = invoices[0]?.razon_social_emisor || recipient.nombre;
-    const rucEmisor = invoices[0]?.ruc_emisor || recipient.ruc;
+    const razonSocial = invoices[0]?.razon_social_emisor || recipient.NOMBRE;
+    const rucEmisor = invoices[0]?.ruc_emisor || recipient.RUC;
+    const primaryEmail = recipient.CORREO?.split(',')[0].trim();
     const invoicesTable = generateInvoicesTable(invoices);
     
     return template
         .replace(/{{razon_social_emisor}}/g, razonSocial)
         .replace(/{{ruc_emisor}}/g, rucEmisor)
-        .replace(/{{nombre_destinatario}}/g, recipient.nombre)
-        .replace(/{{correo_destinatario}}/g, recipient.correo)
+        .replace(/{{nombre_destinatario}}/g, recipient.NOMBRE)
+        .replace(/{{correo_destinatario}}/g, primaryEmail)
         .replace(/{{invoices_table}}/g, invoicesTable);
 }
 
@@ -57,12 +59,15 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {dataArray.map((groupedData, index) => {
           const { recipient, invoices } = groupedData;
-          const razonSocial = invoices[0]?.razon_social_emisor || recipient.nombre;
+          const primaryEmail = recipient.CORREO?.split(',')[0].trim();
+          if (!primaryEmail) return null;
+
+          const razonSocial = invoices[0]?.razon_social_emisor || recipient.NOMBRE;
           const subject = `Anulación de comprobantes`;
           const body = generateEmailBody(emailTemplate, groupedData);
 
           return (
-            <Card key={`${recipient.ruc}-${index}`} className="flex flex-col bg-card">
+            <Card key={`${recipient.RUC}-${index}`} className="flex flex-col bg-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -70,7 +75,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
                   </span>
                   {razonSocial}
                 </CardTitle>
-                <CardDescription>Para: {recipient.correo}</CardDescription>
+                <CardDescription>Para: {primaryEmail}</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-2">
                 <p className="font-semibold text-sm">Asunto: {subject}</p>
@@ -81,7 +86,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
               <CardFooter>
                 <Button 
                   className="w-full" 
-                  onClick={() => handleOpenInOutlook(recipient.correo, subject, body)}
+                  onClick={() => handleOpenInOutlook(primaryEmail, subject, body)}
                 >
                   <Send className="mr-2 h-4 w-4" />
                   Abrir en cliente de correo

@@ -37,19 +37,19 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
             <Card>
-                <Accordion type="single" collapsible className="w-full" defaultValue={dataArray[0]?.recipient.ruc}>
+                <Accordion type="single" collapsible className="w-full" defaultValue={dataArray[0]?.recipient.RUC}>
                 {dataArray.map(({ recipient, invoices }, index) => (
-                    <AccordionItem key={`${recipient.ruc}-${index}`} value={recipient.ruc} className={index === dataArray.length - 1 ? "border-b-0" : ""}>
+                    <AccordionItem key={`${recipient.RUC}-${index}`} value={recipient.RUC} className={index === dataArray.length - 1 ? "border-b-0" : ""}>
                     <AccordionTrigger className="px-6 py-4 hover:no-underline text-left">
                         <div className="flex items-center gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
                             <User className="h-6 w-6 text-secondary-foreground" />
                         </div>
                         <div>
-                            <p className="font-semibold text-foreground">{invoices[0]?.razon_social_emisor || recipient.nombre}</p>
+                            <p className="font-semibold text-foreground">{invoices[0]?.razon_social_emisor || recipient.NOMBRE}</p>
                             <p className="text-sm text-muted-foreground flex items-center gap-2">
                             <Mail className="h-4 w-4" />
-                            {recipient.correo}
+                            {recipient.CORREO?.split(',')[0].trim()}
                             </p>
                         </div>
                         </div>
