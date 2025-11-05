@@ -20,8 +20,7 @@ El motivo de la anulación junto con el detalle de los comprobantes, se encuentr
 {{razon_social_emisor}} {{ruc_emisor}}
 
 {{invoices_table}}
-
-Saludos cordiales,`;
+`;
 
 
 function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]): Map<string, GroupedData> {
