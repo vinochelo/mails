@@ -11,14 +11,23 @@ import type { Recipient, Invoice, GroupedData } from "@/lib/types";
 import { placeholderRecipients, placeholderInvoices } from "@/lib/placeholder-data";
 import { useToast } from "@/hooks/use-toast";
 
-const DEFAULT_EMAIL_TEMPLATE = `Estimado/a {{razon_social_emisor}},
+const DEFAULT_EMAIL_TEMPLATE = `Estimados señores de {{razon_social_emisor}},
 
-Le enviamos un resumen de sus comprobantes pendientes:
+Por medio de la presente, nos dirigimos a ustedes con el fin de solicitar la anulación de los siguientes comprobantes registrados en el SRI.
+
+El motivo de la anulación junto con el detalle de los comprobantes, se encuentra a continuación:
+
+{{razon_social_emisor}} {{ruc_emisor}}
 
 {{invoices_table}}
 
 Saludos cordiales,
-El equipo de MassMailer Pro`;
+
+Vinicio Velastegui
+Contabilidad RM       
+Quito - Ecuador
+Telf: 023976200 / 022945950 Ext: 1405
+Vinicio.velastegui@modarm.com`;
 
 
 function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]): Map<string, GroupedData> {
