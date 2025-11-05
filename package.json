@@ -9,7 +9,10 @@
     "build": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "git:add": "git add .",
+    "git:commit": "git commit -m \"feat: initial commit\"",
+    "git:push": "git push -u origin main"
   },
   "dependencies": {
     "@genkit-ai/google-genai": "^1.20.0",
