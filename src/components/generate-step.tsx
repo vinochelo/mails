@@ -22,10 +22,12 @@ function generateInvoicesTable(invoices: Invoice[]): string {
 function generateEmailBody(template: string, groupedData: GroupedData): string {
     const { recipient, invoices } = groupedData;
     const razonSocial = invoices[0]?.razon_social_emisor || recipient.nombre;
+    const rucEmisor = invoices[0]?.ruc_emisor || recipient.ruc;
     const invoicesTable = generateInvoicesTable(invoices);
     
     return template
         .replace(/{{razon_social_emisor}}/g, razonSocial)
+        .replace(/{{ruc_emisor}}/g, rucEmisor)
         .replace(/{{nombre_destinatario}}/g, recipient.nombre)
         .replace(/{{correo_destinatario}}/g, recipient.correo)
         .replace(/{{invoices_table}}/g, invoicesTable);

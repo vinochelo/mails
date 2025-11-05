@@ -21,6 +21,7 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
 
   const availableTags = [
     { tag: "{{razon_social_emisor}}", description: "Razón social del emisor de la factura." },
+    { tag: "{{ruc_emisor}}", description: "RUC del emisor de la factura." },
     { tag: "{{nombre_destinatario}}", description: "Nombre del contacto del destinatario (proveedor)." },
     { tag: "{{correo_destinatario}}", description: "Correo electrónico del destinatario (proveedor)." },
     { tag: "{{invoices_table}}", description: "Tabla con el detalle de los comprobantes." },
