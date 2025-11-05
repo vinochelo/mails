@@ -55,14 +55,14 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {dataArray.map((groupedData) => {
+        {dataArray.map((groupedData, index) => {
           const { recipient, invoices } = groupedData;
           const razonSocial = invoices[0]?.razon_social_emisor || recipient.nombre;
           const subject = `Anulación de comprobantes`;
           const body = generateEmailBody(emailTemplate, groupedData);
 
           return (
-            <Card key={recipient.ruc} className="flex flex-col bg-card">
+            <Card key={`${recipient.ruc}-${index}`} className="flex flex-col bg-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
