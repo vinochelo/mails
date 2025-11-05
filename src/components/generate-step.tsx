@@ -58,7 +58,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
         {dataArray.map((groupedData) => {
           const { recipient, invoices } = groupedData;
           const razonSocial = invoices[0]?.razon_social_emisor || recipient.nombre;
-          const subject = `Resumen de Comprobantes - ${razonSocial}`;
+          const subject = `Anulación de comprobantes`;
           const body = generateEmailBody(emailTemplate, groupedData);
 
           return (
