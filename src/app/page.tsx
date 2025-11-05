@@ -21,13 +21,7 @@ El motivo de la anulación junto con el detalle de los comprobantes, se encuentr
 
 {{invoices_table}}
 
-Saludos cordiales,
-
-Vinicio Velastegui
-Contabilidad RM       
-Quito - Ecuador
-Telf: 023976200 / 022945950 Ext: 1405
-Vinicio.velastegui@modarm.com`;
+Saludos cordiales,`;
 
 
 function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]): Map<string, GroupedData> {
