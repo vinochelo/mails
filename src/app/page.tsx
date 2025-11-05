@@ -24,11 +24,20 @@ El motivo de la anulación junto con el detalle de los comprobantes, se encuentr
 
 
 function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]): Map<string, GroupedData> {
-  const recipientMap = new Map<string, Recipient>(recipients.map(r => [String(r.RUC).trim(), r]));
+  const cleanString = (val: any): string => String(val || '').trim();
+
+  const recipientMap = new Map<string, Recipient>();
+  for (const r of recipients) {
+    const cleanRuc = cleanString(r.RUC);
+    if (cleanRuc) {
+      recipientMap.set(cleanRuc, r);
+    }
+  }
+
   const grouped = new Map<string, GroupedData>();
 
   for (const invoice of invoices) {
-    const rucEmisor = String(invoice.RUC_EMISOR).trim();
+    const rucEmisor = cleanString(invoice.RUC_EMISOR);
     if (recipientMap.has(rucEmisor)) {
       const recipient = recipientMap.get(rucEmisor)!;
       if (!grouped.has(rucEmisor)) {
