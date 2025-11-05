@@ -74,19 +74,25 @@ export default function Home() {
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
           
-          // Convert sheet to array of arrays, forcing all values to be strings
           const rows: any[][] = XLSX.utils.sheet_to_json(worksheet, {
             header: 1,
             defval: "",
-            raw: true, // Keep raw values to avoid XLSX formatting issues
+            raw: false, // Ensure all values are read as formatted strings
           });
 
           if (rows.length < startRow) {
             resolve([]);
             return;
           }
-
-          const header = rows[startRow - 2].map(h => String(h).trim());
+          
+          // Header is expected to be in startRow - 2 (e.g. if data starts at row 2, header is row 0)
+          const headerRowIndex = startRow > 1 ? startRow - 2 : 0;
+          if (rows.length <= headerRowIndex) {
+             reject(new Error(`La fila de encabezado (${headerRowIndex + 1}) no existe en el archivo.`));
+             return;
+          }
+          const header = rows[headerRowIndex].map(h => String(h || '').trim());
+          
           const dataRows = rows.slice(startRow - 1);
 
           const json = dataRows.map(row => {
@@ -121,7 +127,7 @@ export default function Home() {
         toast({
             variant: "destructive",
             title: "Error al leer el archivo",
-            description: "Asegúrate de que es un archivo Excel válido.",
+            description: e instanceof Error ? e.message : "Asegúrate de que es un archivo Excel válido y la fila de inicio es correcta.",
         });
         setRecipientFile(null);
     }
@@ -140,7 +146,7 @@ export default function Home() {
         toast({
             variant: "destructive",
             title: "Error al leer el archivo",
-            description: "Asegúrate de que es un archivo Excel válido.",
+            description: e instanceof Error ? e.message : "Asegúrate de que es un archivo Excel válido y la fila de inicio es correcta.",
         });
         setInvoiceFile(null);
     }
@@ -168,7 +174,7 @@ export default function Home() {
           toast({
             variant: "destructive",
             title: "No se encontraron coincidencias",
-            description: "No se pudo agrupar ninguna factura. Revisa que los RUCs coincidan en ambos archivos.",
+            description: "No se pudo agrupar ninguna factura. Revisa que los RUCs coincidan en ambos archivos y que las filas de inicio sean correctas.",
           });
           return;
       }
