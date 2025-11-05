@@ -11,7 +11,7 @@ import type { Recipient, Invoice, GroupedData } from "@/lib/types";
 import { placeholderRecipients, placeholderInvoices } from "@/lib/placeholder-data";
 import { useToast } from "@/hooks/use-toast";
 
-const DEFAULT_EMAIL_TEMPLATE = `Estimado/a {{razon_social}},
+const DEFAULT_EMAIL_TEMPLATE = `Estimado/a {{razon_social_emisor}},
 
 Le enviamos un resumen de sus comprobantes pendientes:
 
@@ -26,14 +26,14 @@ function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]):
   const grouped = new Map<string, GroupedData>();
 
   for (const invoice of invoices) {
-    if (recipientMap.has(invoice.ruc)) {
-      if (!grouped.has(invoice.ruc)) {
-        grouped.set(invoice.ruc, {
-          recipient: recipientMap.get(invoice.ruc)!,
+    if (recipientMap.has(invoice.ruc_emisor)) {
+      if (!grouped.has(invoice.ruc_emisor)) {
+        grouped.set(invoice.ruc_emisor, {
+          recipient: recipientMap.get(invoice.ruc_emisor)!,
           invoices: [],
         });
       }
-      grouped.get(invoice.ruc)!.invoices.push(invoice);
+      grouped.get(invoice.ruc_emisor)!.invoices.push(invoice);
     }
   }
   return grouped;

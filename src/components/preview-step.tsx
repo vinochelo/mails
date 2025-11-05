@@ -20,10 +20,10 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
   const dataArray = Array.from(data.values());
 
   const availableTags = [
-    { tag: "{{razon_social}}", description: "Nombre o razón social del destinatario." },
-    { tag: "{{nombre_destinatario}}", description: "Nombre del contacto del destinatario." },
-    { tag: "{{correo_destinatario}}", description: "Correo electrónico del destinatario." },
-    { tag: "{{invoices_table}}", description: "Tabla HTML con el detalle de los comprobantes." },
+    { tag: "{{razon_social_emisor}}", description: "Razón social del emisor de la factura." },
+    { tag: "{{nombre_destinatario}}", description: "Nombre del contacto del destinatario (proveedor)." },
+    { tag: "{{correo_destinatario}}", description: "Correo electrónico del destinatario (proveedor)." },
+    { tag: "{{invoices_table}}", description: "Tabla con el detalle de los comprobantes." },
   ];
 
   return (
@@ -45,7 +45,7 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
                             <User className="h-6 w-6 text-secondary-foreground" />
                         </div>
                         <div>
-                            <p className="font-semibold text-foreground">{invoices[0]?.razon_social || recipient.nombre}</p>
+                            <p className="font-semibold text-foreground">{invoices[0]?.razon_social_emisor || recipient.nombre}</p>
                             <p className="text-sm text-muted-foreground flex items-center gap-2">
                             <Mail className="h-4 w-4" />
                             {recipient.correo}

@@ -8,8 +8,8 @@ export interface Recipient {
 export interface Invoice {
   tipo_comprobante: string;
   serie_comprobante: string;
-  ruc: string;
-  razon_social: string;
+  ruc_emisor: string;
+  razon_social_emisor: string;
   observaciones: string;
 }
 

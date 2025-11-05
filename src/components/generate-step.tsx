@@ -21,11 +21,11 @@ function generateInvoicesTable(invoices: Invoice[]): string {
 
 function generateEmailBody(template: string, groupedData: GroupedData): string {
     const { recipient, invoices } = groupedData;
-    const razonSocial = invoices[0]?.razon_social || recipient.nombre;
+    const razonSocial = invoices[0]?.razon_social_emisor || recipient.nombre;
     const invoicesTable = generateInvoicesTable(invoices);
     
     return template
-        .replace(/{{razon_social}}/g, razonSocial)
+        .replace(/{{razon_social_emisor}}/g, razonSocial)
         .replace(/{{nombre_destinatario}}/g, recipient.nombre)
         .replace(/{{correo_destinatario}}/g, recipient.correo)
         .replace(/{{invoices_table}}/g, invoicesTable);
@@ -55,7 +55,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {dataArray.map((groupedData) => {
           const { recipient, invoices } = groupedData;
-          const razonSocial = invoices[0]?.razon_social || recipient.nombre;
+          const razonSocial = invoices[0]?.razon_social_emisor || recipient.nombre;
           const subject = `Resumen de Comprobantes - ${razonSocial}`;
           const body = generateEmailBody(emailTemplate, groupedData);
 
