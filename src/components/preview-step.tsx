@@ -39,7 +39,7 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
             <Card>
                 <Accordion type="single" collapsible className="w-full" defaultValue={dataArray[0]?.recipient.ruc}>
                 {dataArray.map(({ recipient, invoices }, index) => (
-                    <AccordionItem key={recipient.ruc} value={recipient.ruc} className={index === dataArray.length - 1 ? "border-b-0" : ""}>
+                    <AccordionItem key={`${recipient.ruc}-${index}`} value={recipient.ruc} className={index === dataArray.length - 1 ? "border-b-0" : ""}>
                     <AccordionTrigger className="px-6 py-4 hover:no-underline text-left">
                         <div className="flex items-center gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
@@ -65,8 +65,8 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
                                 </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                {invoices.map((invoice) => (
-                                    <TableRow key={invoice.serie_comprobante}>
+                                {invoices.map((invoice, invIndex) => (
+                                    <TableRow key={`${invoice.serie_comprobante}-${invIndex}`}>
                                     <TableCell className="font-medium">{invoice.tipo_comprobante}</TableCell>
                                     <TableCell>{invoice.serie_comprobante}</TableCell>
                                     <TableCell>{invoice.observaciones}</TableCell>
