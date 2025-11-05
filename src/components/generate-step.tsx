@@ -14,9 +14,9 @@ interface GenerateStepProps {
 }
 
 function generateInvoicesTable(invoices: Invoice[]): string {
-    const header = `| Tipo de Comprobante | Serie | Observaciones |\n|---|---|---|\n`;
+    const header = `Tipo de Comprobante - Serie - Observaciones\n`;
     const rows = invoices.map(inv => 
-        `| ${inv.TIPO_COMPROBANTE} | ${inv.SERIE_COMPROBANTE} | ${inv.OBSERVACIONES} |`
+        `${inv.TIPO_COMPROBANTE} - ${inv.SERIE_COMPROBANTE} - ${inv.OBSERVACIONES}`
     ).join('\n');
     return header + rows;
 }
