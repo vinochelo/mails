@@ -24,11 +24,11 @@ El motivo de la anulación junto con el detalle de los comprobantes, se encuentr
 
 
 function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]): Map<string, GroupedData> {
-  const recipientMap = new Map<string, Recipient>(recipients.map(r => [r.RUC, r]));
+  const recipientMap = new Map<string, Recipient>(recipients.map(r => [String(r.RUC), r]));
   const grouped = new Map<string, GroupedData>();
 
   for (const invoice of invoices) {
-    const rucEmisor = invoice['RUC_EMISOR'];
+    const rucEmisor = String(invoice['RUC_EMISOR']);
     if (recipientMap.has(rucEmisor)) {
       const recipient = recipientMap.get(rucEmisor)!;
       if (!grouped.has(rucEmisor)) {
@@ -64,7 +64,7 @@ export default function Home() {
           const workbook = XLSX.read(data, { type: 'array' });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          const json = XLSX.utils.sheet_to_json(worksheet, { range: startRow - 1 }) as T[];
+          const json = XLSX.utils.sheet_to_json(worksheet, { range: startRow - 1, defval: "" }) as T[];
           resolve(json);
         } catch (error) {
           reject(error);
@@ -131,11 +131,19 @@ export default function Home() {
 
     setTimeout(() => {
       const data = groupInvoicesByRecipient(recipients, invoices);
+      if (data.size === 0) {
+          toast({
+            variant: "destructive",
+            title: "No se encontraron coincidencias",
+            description: "No se pudo agrupar ninguna factura. Revisa que los RUCs coincidan en ambos archivos.",
+          });
+          return;
+      }
       setProcessedData(data);
       setStep(2);
       toast({
         title: "¡Éxito!",
-        description: `Se procesaron los datos y se encontraron ${data.size} destinatarios.`,
+        description: `Se procesaron los datos y se encontraron ${data.size} destinatarios con facturas.`,
       });
     }, 1000);
   };
