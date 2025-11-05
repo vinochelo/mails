@@ -13,25 +13,24 @@ interface GenerateStepProps {
 
 function generateInvoicesTable(invoices: Invoice[]): string {
     const header = `| Tipo de Comprobante | Serie | Observaciones |\n`;
-    const separator = `| --- | --- | --- |\n`;
     const rows = invoices.map(inv => 
-        `| ${inv.tipo_comprobante} | ${inv.serie_comprobante} | ${inv.observaciones} |`
+        `| ${inv['Tipo Comprobante']} | ${inv['Serie Comprobante']} | ${inv.Observaciones} |`
     ).join('\n');
     return header + rows;
 }
 
 function generateEmailBody(template: string, groupedData: GroupedData): string {
     const { recipient, invoices } = groupedData;
-    const razonSocial = invoices[0]?.razon_social_emisor || recipient.NOMBRE;
-    const rucEmisor = invoices[0]?.ruc_emisor || recipient.RUC;
-    const primaryEmail = recipient.CORREO?.split(',')[0].trim();
+    const razonSocial = invoices[0]?.['Razón Social Emisor'] || recipient.NOMBRE;
+    const rucEmisor = invoices[0]?.['Ruc Emisor'] || recipient.RUC;
+    const recipientEmails = recipient.CORREO;
     const invoicesTable = generateInvoicesTable(invoices);
     
     return template
         .replace(/{{razon_social_emisor}}/g, razonSocial)
         .replace(/{{ruc_emisor}}/g, rucEmisor)
         .replace(/{{nombre_destinatario}}/g, recipient.NOMBRE)
-        .replace(/{{correo_destinatario}}/g, primaryEmail)
+        .replace(/{{correo_destinatario}}/g, recipientEmails)
         .replace(/{{invoices_table}}/g, invoicesTable);
 }
 
@@ -59,10 +58,10 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {dataArray.map((groupedData, index) => {
           const { recipient, invoices } = groupedData;
-          const primaryEmail = recipient.CORREO?.split(',')[0].trim();
-          if (!primaryEmail) return null;
+          const recipientEmails = recipient.CORREO;
+          if (!recipientEmails) return null;
 
-          const razonSocial = invoices[0]?.razon_social_emisor || recipient.NOMBRE;
+          const razonSocial = invoices[0]?.['Razón Social Emisor'] || recipient.NOMBRE;
           const subject = `Anulación de comprobantes`;
           const body = generateEmailBody(emailTemplate, groupedData);
 
@@ -75,7 +74,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
                   </span>
                   {razonSocial}
                 </CardTitle>
-                <CardDescription>Para: {primaryEmail}</CardDescription>
+                <CardDescription>Para: {recipientEmails}</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-2">
                 <p className="font-semibold text-sm">Asunto: {subject}</p>
@@ -86,7 +85,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
               <CardFooter>
                 <Button 
                   className="w-full" 
-                  onClick={() => handleOpenInOutlook(primaryEmail, subject, body)}
+                  onClick={() => handleOpenInOutlook(recipientEmails, subject, body)}
                 >
                   <Send className="mr-2 h-4 w-4" />
                   Abrir en cliente de correo

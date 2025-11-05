@@ -28,14 +28,15 @@ function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]):
   const grouped = new Map<string, GroupedData>();
 
   for (const invoice of invoices) {
-    if (recipientMap.has(invoice.ruc_emisor)) {
-      if (!grouped.has(invoice.ruc_emisor)) {
-        grouped.set(invoice.ruc_emisor, {
-          recipient: recipientMap.get(invoice.ruc_emisor)!,
+    const rucEmisor = invoice['Ruc Emisor'];
+    if (recipientMap.has(rucEmisor)) {
+      if (!grouped.has(rucEmisor)) {
+        grouped.set(rucEmisor, {
+          recipient: recipientMap.get(rucEmisor)!,
           invoices: [],
         });
       }
-      grouped.get(invoice.ruc_emisor)!.invoices.push(invoice);
+      grouped.get(rucEmisor)!.invoices.push(invoice);
     }
   }
   return grouped;

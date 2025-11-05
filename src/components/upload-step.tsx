@@ -106,7 +106,13 @@ const FileUploader = ({
             type="number" 
             id={`start-row-${title.replace(/\s+/g, '-')}`}
             value={startRow}
-            onChange={(e) => setStartRow(parseInt(e.target.value, 10))}
+            onChange={(e) => {
+              const row = parseInt(e.target.value, 10);
+              setStartRow(row);
+              if (uploadedFile) {
+                  onFileUpload(uploadedFile, row);
+              }
+            }}
             min="1"
             className="w-24"
           />
@@ -130,7 +136,7 @@ export function UploadStep({ onProcess, onRecipientsUpload, onInvoicesUpload, re
         />
         <FileUploader 
             title="2. Archivo de Comprobantes"
-            description="Debe contener: Tipo, serie, RUC, razón social, etc."
+            description="Debe contener: Tipo Comprobante, Serie Comprobante, etc."
             icon={FileText}
             onFileUpload={onInvoicesUpload}
             uploadedFile={invoiceFile}
