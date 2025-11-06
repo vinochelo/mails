@@ -77,7 +77,7 @@ export default function Home() {
           const rows: any[][] = XLSX.utils.sheet_to_json(worksheet, {
             header: 1,
             defval: "",
-            raw: false, // Ensure all values are read as formatted strings
+            raw: false, 
           });
 
           if (rows.length < startRow) {
@@ -85,7 +85,6 @@ export default function Home() {
             return;
           }
           
-          // Header is expected to be in startRow - 2 (e.g. if data starts at row 2, header is row 0)
           const headerRowIndex = startRow > 1 ? startRow - 2 : 0;
           if (rows.length <= headerRowIndex) {
              reject(new Error(`La fila de encabezado (${headerRowIndex + 1}) no existe en el archivo.`));

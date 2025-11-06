@@ -108,9 +108,9 @@ const FileUploader = ({
             value={startRow}
             onChange={(e) => {
               const row = parseInt(e.target.value, 10);
-              setStartRow(row);
+              setStartRow(row > 0 ? row : 1);
               if (uploadedFile) {
-                  onFileUpload(uploadedFile, row);
+                  onFileUpload(uploadedFile, row > 0 ? row : 1);
               }
             }}
             min="1"
@@ -126,6 +126,10 @@ const FileUploader = ({
 export function UploadStep({ onProcess, onRecipientsUpload, onInvoicesUpload, recipientFile, invoiceFile }: UploadStepProps) {
   return (
     <div className="w-full animate-in fade-in-50 duration-500">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold font-headline">Sube tus archivos</h2>
+        <p className="text-muted-foreground mt-2">Carga los archivos de Excel con los datos de destinatarios y comprobantes.</p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <FileUploader 
             title="1. Archivo de Destinatarios"
@@ -136,7 +140,7 @@ export function UploadStep({ onProcess, onRecipientsUpload, onInvoicesUpload, re
         />
         <FileUploader 
             title="2. Archivo de Comprobantes"
-            description="Debe contener: Tipo Comprobante, Serie Comprobante, etc."
+            description="Debe contener: RUC_EMISOR, TIPO_COMPROBANTE, SERIE_COMPROBANTE, etc."
             icon={FileText}
             onFileUpload={onInvoicesUpload}
             uploadedFile={invoiceFile}
