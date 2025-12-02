@@ -2,7 +2,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { GroupedData } from "@/lib/types";
-import { Mail, User, ChevronRight, Info } from "lucide-react";
+import { Mail, User, ChevronRight, Info, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,7 +31,7 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
     <div className="w-full animate-in fade-in-50 duration-500">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold font-headline">Datos Agrupados</h2>
-        <p className="text-muted-foreground mt-2">Se encontraron {data.size} destinatarios. Revisa los comprobantes agrupados para cada uno.</p>
+        <p className="text-muted-foreground mt-2">Se encontraron {data.size} emisores de comprobantes. Revisa los detalles para cada uno.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -46,11 +46,18 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
                             <User className="h-6 w-6 text-secondary-foreground" />
                         </div>
                         <div>
-                            <p className="font-semibold text-foreground">{invoices[0]?.RAZON_SOCIAL_EMISOR || recipient.NOMBRE}</p>
-                            <p className="text-sm text-muted-foreground flex items-center gap-2">
-                            <Mail className="h-4 w-4" />
-                            {recipient.CORREO}
-                            </p>
+                            <p className="font-semibold text-foreground">{recipient.NOMBRE || invoices[0]?.RAZON_SOCIAL_EMISOR}</p>
+                            {recipient.CORREO ? (
+                                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                    <Mail className="h-4 w-4" />
+                                    {recipient.CORREO}
+                                </p>
+                            ) : (
+                                <p className="text-sm text-amber-600 dark:text-amber-500 flex items-center gap-2 font-medium">
+                                    <AlertTriangle className="h-4 w-4" />
+                                    Correo no encontrado
+                                </p>
+                            )}
                         </div>
                         </div>
                     </AccordionTrigger>

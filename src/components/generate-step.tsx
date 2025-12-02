@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import type { GroupedData, Invoice } from "@/lib/types";
-import { Mail, Send, RotateCcw, CheckCircle } from "lucide-react";
+import { Mail, Send, RotateCcw, CheckCircle, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface GenerateStepProps {
@@ -23,8 +23,8 @@ function generateInvoicesTable(invoices: Invoice[]): string {
 
 function generateEmailBody(template: string, groupedData: GroupedData): string {
     const { recipient, invoices } = groupedData;
-    const razonSocial = invoices[0]?.RAZON_SOCIAL_EMISOR || recipient.NOMBRE;
-    const rucEmisor = invoices[0]?.RUC_EMISOR || recipient.RUC;
+    const razonSocial = recipient.NOMBRE || invoices[0]?.RAZON_SOCIAL_EMISOR;
+    const rucEmisor = recipient.RUC || invoices[0]?.RUC_EMISOR;
     const recipientEmails = recipient.CORREO;
     const invoicesTable = generateInvoicesTable(invoices);
     
@@ -42,6 +42,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
   const dataArray = Array.from(data.values());
 
   const handleOpenInOutlook = (recipientRuc: string, recipientEmail: string, subject: string, body: string) => {
+    if (!recipientEmail) return;
     const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoLink;
     
@@ -61,10 +62,10 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
         {dataArray.map((groupedData, index) => {
           const { recipient, invoices } = groupedData;
           const recipientEmails = recipient.CORREO;
-          if (!recipientEmails) return null;
 
           const isSent = sentEmails.has(recipient.RUC);
-          const razonSocial = invoices[0]?.RAZON_SOCIAL_EMISOR || recipient.NOMBRE;
+          const hasEmail = !!recipientEmails;
+          const razonSocial = recipient.NOMBRE || invoices[0]?.RAZON_SOCIAL_EMISOR;
           const subject = `Anulación de comprobantes`;
           const body = generateEmailBody(emailTemplate, groupedData);
 
@@ -73,25 +74,25 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
               key={`${recipient.RUC}-${index}`} 
               className={cn(
                 "flex flex-col bg-card transition-all duration-300",
-                isSent && "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+                isSent && "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800",
+                !hasEmail && "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
               )}
             >
               <CardHeader>
                 <CardTitle className="flex items-start gap-3">
                    <span className={cn(
                       "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold bg-primary/10",
-                      isSent && "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
+                      isSent && "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400",
+                      !hasEmail && "bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-400"
                     )}
                   >
-                    {isSent ? (
-                      <CheckCircle className="h-5 w-5" />
-                    ) : (
-                      <span>{index + 1}</span>
-                    )}
+                    {isSent ? <CheckCircle className="h-5 w-5" /> : !hasEmail ? <AlertTriangle className="h-5 w-5" /> : <span>{index + 1}</span>}
                   </span>
                   <div className="flex-1">
                     {razonSocial}
-                    <CardDescription className="mt-1">Para: {recipientEmails}</CardDescription>
+                    <CardDescription className={cn("mt-1", !hasEmail && "text-amber-600 dark:text-amber-500 font-semibold")}>
+                        {hasEmail ? `Para: ${recipientEmails}`: "Correo no encontrado"}
+                    </CardDescription>
                   </div>
                 </CardTitle>
               </CardHeader>
@@ -105,16 +106,22 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
                 <Button 
                   className="w-full" 
                   onClick={() => handleOpenInOutlook(recipient.RUC, recipientEmails, subject, body)}
+                  disabled={!hasEmail}
                 >
                   {isSent ? (
                     <>
                       <CheckCircle className="mr-2 h-4 w-4" />
                       Correo Abierto
                     </>
-                  ) : (
+                  ) : hasEmail ? (
                     <>
                       <Send className="mr-2 h-4 w-4" />
                       Abrir en cliente de correo
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="mr-2 h-4 w-4" />
+                      Falta Correo
                     </>
                   )}
                 </Button>

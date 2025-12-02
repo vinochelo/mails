@@ -27,26 +27,31 @@ El motivo de la anulación junto con el detalle de los comprobantes, se encuentr
 function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]): Map<string, GroupedData> {
   const cleanString = (val: any): string => String(val || '').trim();
   const grouped = new Map<string, GroupedData>();
+  const recipientsByRuc = new Map(recipients.map(r => [cleanString(r.RUC), r]));
 
-  // 1. First, create an entry for every recipient, with an empty invoices array.
-  for (const recipient of recipients) {
-    const ruc = cleanString(recipient.RUC);
-    if (ruc) {
-      if (!grouped.has(ruc)) {
-        grouped.set(ruc, {
-          recipient: recipient,
-          invoices: [],
-        });
-      }
-    }
-  }
-
-  // 2. Then, iterate over invoices and push them to the corresponding recipient.
+  // 1. Iterate over invoices as the source of truth.
   for (const invoice of invoices) {
     const rucEmisor = cleanString(invoice.RUC_EMISOR);
-    if (grouped.has(rucEmisor)) {
-      grouped.get(rucEmisor)!.invoices.push(invoice);
+    if (!rucEmisor) continue;
+
+    // If the group doesn't exist, create it.
+    if (!grouped.has(rucEmisor)) {
+      const recipient = recipientsByRuc.get(rucEmisor);
+      const initialRecipientData: Recipient = recipient || {
+        RUC: rucEmisor,
+        NOMBRE: cleanString(invoice.RAZON_SOCIAL_EMISOR),
+        CORREO: '', // Mark as no email found
+        CODIGO: ''
+      };
+      
+      grouped.set(rucEmisor, {
+        recipient: initialRecipientData,
+        invoices: [],
+      });
     }
+
+    // 2. Push the invoice to the corresponding group.
+    grouped.get(rucEmisor)!.invoices.push(invoice);
   }
 
   return grouped;
@@ -165,7 +170,7 @@ export default function Home() {
     
     toast({
       title: "Procesando datos...",
-      description: "Agrupando facturas por destinatario.",
+      description: "Agrupando facturas por emisor.",
     });
 
     setTimeout(() => {
@@ -173,8 +178,8 @@ export default function Home() {
       if (data.size === 0) {
           toast({
             variant: "destructive",
-            title: "No se encontraron destinatarios",
-            description: "No se pudo encontrar ningún destinatario en el archivo. Revisa que el archivo y la fila de inicio sean correctos.",
+            title: "No se procesaron datos",
+            description: "No se pudo agrupar ningún comprobante. Revisa que los archivos y la fila de inicio sean correctos.",
           });
           return;
       }
@@ -182,7 +187,7 @@ export default function Home() {
       setStep(2);
       toast({
         title: "¡Éxito!",
-        description: `Se procesaron los datos para ${data.size} destinatarios.`,
+        description: `Se agruparon los comprobantes para ${data.size} emisores.`,
       });
     }, 1000);
   };
