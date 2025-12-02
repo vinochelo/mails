@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import type { GroupedData, Invoice } from "@/lib/types";
-import { Mail, Send, RotateCcw, CheckCircle, AlertTriangle } from "lucide-react";
+import { Mail, Send, RotateCcw, CheckCircle, AlertTriangle, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface GenerateStepProps {
@@ -42,8 +42,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
   const dataArray = Array.from(data.values());
 
   const handleOpenInOutlook = (recipientRuc: string, recipientEmail: string, subject: string, body: string) => {
-    if (!recipientEmail) return;
-    const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoLink = `mailto:${recipientEmail || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoLink;
     
     const newSent = new Set(sentEmails);
@@ -106,7 +105,6 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
                 <Button 
                   className="w-full" 
                   onClick={() => handleOpenInOutlook(recipient.RUC, recipientEmails, subject, body)}
-                  disabled={!hasEmail}
                 >
                   {isSent ? (
                     <>
@@ -120,8 +118,8 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
                     </>
                   ) : (
                     <>
-                      <AlertTriangle className="mr-2 h-4 w-4" />
-                      Falta Correo
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Completar y Enviar
                     </>
                   )}
                 </Button>
