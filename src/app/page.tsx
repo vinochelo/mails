@@ -10,6 +10,7 @@ import { GenerateStep } from "@/components/generate-step";
 
 import type { Recipient, Invoice, GroupedData } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { Analytics } from "@vercel/analytics/react";
 
 const DEFAULT_EMAIL_TEMPLATE = `Estimados señores de {{razon_social_emisor}},
 
@@ -25,32 +26,32 @@ El motivo de la anulación junto con el detalle de los comprobantes, se encuentr
 
 function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]): Map<string, GroupedData> {
   const cleanString = (val: any): string => String(val || '').trim();
-
-  const recipientMap = new Map<string, Recipient>();
-  for (const r of recipients) {
-    const cleanRuc = cleanString(r.RUC);
-    if (cleanRuc) {
-      recipientMap.set(cleanRuc, r);
-    }
-  }
-
   const grouped = new Map<string, GroupedData>();
 
-  for (const invoice of invoices) {
-    const rucEmisor = cleanString(invoice.RUC_EMISOR);
-    if (recipientMap.has(rucEmisor)) {
-      const recipient = recipientMap.get(rucEmisor)!;
-      if (!grouped.has(rucEmisor)) {
-        grouped.set(rucEmisor, {
+  // 1. First, create an entry for every recipient, with an empty invoices array.
+  for (const recipient of recipients) {
+    const ruc = cleanString(recipient.RUC);
+    if (ruc) {
+      if (!grouped.has(ruc)) {
+        grouped.set(ruc, {
           recipient: recipient,
           invoices: [],
         });
       }
+    }
+  }
+
+  // 2. Then, iterate over invoices and push them to the corresponding recipient.
+  for (const invoice of invoices) {
+    const rucEmisor = cleanString(invoice.RUC_EMISOR);
+    if (grouped.has(rucEmisor)) {
       grouped.get(rucEmisor)!.invoices.push(invoice);
     }
   }
+
   return grouped;
 }
+
 
 export default function Home() {
   const [step, setStep] = useState(1);
@@ -172,8 +173,8 @@ export default function Home() {
       if (data.size === 0) {
           toast({
             variant: "destructive",
-            title: "No se encontraron coincidencias",
-            description: "No se pudo agrupar ninguna factura. Revisa que los RUCs coincidan en ambos archivos y que las filas de inicio sean correctas.",
+            title: "No se encontraron destinatarios",
+            description: "No se pudo encontrar ningún destinatario en el archivo. Revisa que el archivo y la fila de inicio sean correctos.",
           });
           return;
       }
@@ -181,7 +182,7 @@ export default function Home() {
       setStep(2);
       toast({
         title: "¡Éxito!",
-        description: `Se procesaron los datos y se encontraron ${data.size} destinatarios con facturas.`,
+        description: `Se procesaron los datos para ${data.size} destinatarios.`,
       });
     }, 1000);
   };
@@ -223,6 +224,7 @@ export default function Home() {
           {step === 3 && processedData && <GenerateStep data={processedData} emailTemplate={emailTemplate} onBack={handleBack} onStartOver={handleStartOver} />}
         </div>
       </main>
+      <Analytics />
     </>
   );
 }
