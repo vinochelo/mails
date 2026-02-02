@@ -51,6 +51,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
   const alertTriggered = useRef(false);
 
   useEffect(() => {
+    // Alerta de 5 minutos si quedan correos pendientes
     const timer = setTimeout(() => {
       if (!alertTriggered.current && sentEmails.size < totalCount) {
         toast({
@@ -82,6 +83,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
             <p className="text-muted-foreground mt-2 text-lg">Se han preparado {totalCount} borradores para envío masivo.</p>
         </div>
         
+        {/* Pending counter in top right */}
         <div className="flex items-center gap-5 bg-card border-2 border-primary/20 rounded-2xl px-8 py-4 shadow-xl">
             <div className="flex flex-col items-center">
                 <span className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">Restantes</span>
@@ -105,7 +107,7 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
       {remainingCount > 0 && (
         <div className="mb-8 flex items-center gap-3 p-4 bg-primary/5 text-primary rounded-xl border border-primary/10 animate-pulse shadow-sm">
             <Clock className="h-5 w-5" />
-            <span className="text-sm font-semibold">Te avisaremos en 5 minutos si todavía quedan correos pendientes por enviar.</span>
+            <span className="text-sm font-semibold">Recibirás una alerta en 5 minutos si todavía quedan correos pendientes.</span>
         </div>
       )}
       
@@ -147,9 +149,9 @@ export function GenerateStep({ data, emailTemplate, onBack, onStartOver }: Gener
                     {isSent ? <CheckCircle className="h-6 w-6" /> : !hasEmail ? <AlertTriangle className="h-6 w-6" /> : <Mail className="h-6 w-6" />}
                   </span>
                   <div className="flex-1 overflow-hidden">
-                    <p className="truncate font-headline leading-tight" title={razonSocial}>{razonSocial}</p>
+                    <p className="truncate font-headline font-bold leading-tight" title={razonSocial}>{razonSocial}</p>
                     <CardDescription className={cn("mt-2 truncate font-medium", !hasEmail && "text-amber-600 dark:text-amber-500")}>
-                        {hasEmail ? recipientEmails : "Sin correo - Ingresar en Outlook"}
+                        {hasEmail ? recipientEmails : "Sin correo - Ingresar manualmente"}
                     </CardDescription>
                   </div>
                 </CardTitle>

@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { Header } from "@/components/header";
 import { Stepper } from "@/components/stepper";
@@ -23,24 +24,21 @@ El motivo de la anulación junto con el detalle de los comprobantes, se encuentr
 {{invoices_table}}
 `;
 
-
 function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]): Map<string, GroupedData> {
   const cleanString = (val: any): string => String(val || '').trim();
   const grouped = new Map<string, GroupedData>();
   const recipientsByRuc = new Map(recipients.map(r => [cleanString(r.RUC), r]));
 
-  // 1. Iterate over invoices as the source of truth.
   for (const invoice of invoices) {
     const rucEmisor = cleanString(invoice.RUC_EMISOR);
     if (!rucEmisor) continue;
 
-    // If the group doesn't exist, create it.
     if (!grouped.has(rucEmisor)) {
       const recipient = recipientsByRuc.get(rucEmisor);
       const initialRecipientData: Recipient = recipient || {
         RUC: rucEmisor,
         NOMBRE: cleanString(invoice.RAZON_SOCIAL_EMISOR),
-        CORREO: '', // Mark as no email found
+        CORREO: '',
         CODIGO: ''
       };
       
@@ -50,13 +48,11 @@ function groupInvoicesByRecipient(recipients: Recipient[], invoices: Invoice[]):
       });
     }
 
-    // 2. Push the invoice to the corresponding group.
     grouped.get(rucEmisor)!.invoices.push(invoice);
   }
 
   return grouped;
 }
-
 
 export default function Home() {
   const [step, setStep] = useState(1);
@@ -66,9 +62,33 @@ export default function Home() {
   const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
   const [processedData, setProcessedData] = useState<Map<string, GroupedData> | null>(null);
   const [emailTemplate, setEmailTemplate] = useState<string>(DEFAULT_EMAIL_TEMPLATE);
+  const [lastRecipientsUpdate, setLastRecipientsUpdate] = useState<string | null>(null);
   const { toast } = useToast();
 
   const STEPS = ["Subir Datos", "Previsualizar", "Generar Correos"];
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedRecipients = localStorage.getItem("hola_mails_recipients");
+    const savedUpdateDate = localStorage.getItem("hola_mails_last_update");
+    
+    if (savedRecipients) {
+      try {
+        setRecipients(JSON.parse(savedRecipients));
+      } catch (e) {
+        console.error("Error loading recipients from storage", e);
+      }
+    }
+    
+    if (savedUpdateDate) {
+      setLastRecipientsUpdate(savedUpdateDate);
+    }
+  }, []);
+
+  // Ensures that when changing steps, the page scrolls to the top immediately
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
 
   const parseFile = <T extends Record<string, any>>(file: File, startRow: number): Promise<T[]> => {
     return new Promise((resolve, reject) => {
@@ -124,15 +144,22 @@ export default function Home() {
     try {
         const parsedRecipients = await parseFile<Recipient>(file, startRow);
         setRecipients(parsedRecipients);
+        
+        // Save to localStorage
+        const now = new Date().toISOString();
+        localStorage.setItem("hola_mails_recipients", JSON.stringify(parsedRecipients));
+        localStorage.setItem("hola_mails_last_update", now);
+        setLastRecipientsUpdate(now);
+
         toast({
             title: "Archivo de destinatarios cargado",
-            description: `Se encontraron ${parsedRecipients.length} destinatarios.`,
+            description: `Se encontraron ${parsedRecipients.length} destinatarios y se guardaron en el navegador.`,
         });
     } catch(e) {
         toast({
             variant: "destructive",
             title: "Error al leer el archivo",
-            description: e instanceof Error ? e.message : "Asegúrate de que es un archivo Excel válido y la fila de inicio es correcta.",
+            description: e instanceof Error ? e.message : "Error al cargar destinatarios.",
         });
         setRecipientFile(null);
     }
@@ -151,12 +178,11 @@ export default function Home() {
         toast({
             variant: "destructive",
             title: "Error al leer el archivo",
-            description: e instanceof Error ? e.message : "Asegúrate de que es un archivo Excel válido y la fila de inicio es correcta.",
+            description: e instanceof Error ? e.message : "Error al cargar comprobantes.",
         });
         setInvoiceFile(null);
     }
   };
-
 
   const handleProcess = () => {
     if (recipients.length === 0 || invoices.length === 0) {
@@ -168,28 +194,17 @@ export default function Home() {
       return;
     }
     
-    toast({
-      title: "Procesando datos...",
-      description: "Agrupando facturas por emisor.",
-    });
-
-    setTimeout(() => {
-      const data = groupInvoicesByRecipient(recipients, invoices);
-      if (data.size === 0) {
-          toast({
-            variant: "destructive",
-            title: "No se procesaron datos",
-            description: "No se pudo agrupar ningún comprobante. Revisa que los archivos y la fila de inicio sean correctos.",
-          });
-          return;
-      }
-      setProcessedData(data);
-      setStep(2);
-      toast({
-        title: "¡Éxito!",
-        description: `Se agruparon los comprobantes para ${data.size} emisores.`,
-      });
-    }, 1000);
+    const data = groupInvoicesByRecipient(recipients, invoices);
+    if (data.size === 0) {
+        toast({
+          variant: "destructive",
+          title: "No se procesaron datos",
+          description: "No se pudo agrupar ningún comprobante. Revisa los archivos.",
+        });
+        return;
+    }
+    setProcessedData(data);
+    setStep(2);
   };
 
   const handleGenerate = () => {
@@ -207,13 +222,23 @@ export default function Home() {
   
   const handleStartOver = () => {
     setProcessedData(null);
-    setRecipients([]);
     setInvoices([]);
-    setRecipientFile(null);
     setInvoiceFile(null);
     setEmailTemplate(DEFAULT_EMAIL_TEMPLATE);
     setStep(1);
   }
+
+  const handleClearRecipients = () => {
+    setRecipients([]);
+    setRecipientFile(null);
+    setLastRecipientsUpdate(null);
+    localStorage.removeItem("hola_mails_recipients");
+    localStorage.removeItem("hola_mails_last_update");
+    toast({
+      title: "Base de datos eliminada",
+      description: "La información de destinatarios ha sido borrada del navegador.",
+    });
+  };
 
   return (
     <>
@@ -224,7 +249,18 @@ export default function Home() {
         </div>
         
         <div className="max-w-7xl mx-auto">
-          {step === 1 && <UploadStep onProcess={handleProcess} onRecipientsUpload={handleRecipientsUpload} onInvoicesUpload={handleInvoicesUpload} recipientFile={recipientFile} invoiceFile={invoiceFile} />}
+          {step === 1 && (
+            <UploadStep 
+              onProcess={handleProcess} 
+              onRecipientsUpload={handleRecipientsUpload} 
+              onInvoicesUpload={handleInvoicesUpload} 
+              recipientFile={recipientFile} 
+              invoiceFile={invoiceFile} 
+              recipientsCount={recipients.length}
+              lastRecipientsUpdate={lastRecipientsUpdate}
+              onClearRecipients={handleClearRecipients}
+            />
+          )}
           {step === 2 && processedData && <PreviewStep data={processedData} emailTemplate={emailTemplate} onTemplateChange={setEmailTemplate} onNext={handleGenerate} onBack={handleBack} />}
           {step === 3 && processedData && <GenerateStep data={processedData} emailTemplate={emailTemplate} onBack={handleBack} onStartOver={handleStartOver} />}
         </div>
