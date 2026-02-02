@@ -35,7 +35,7 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
     let highlighted = text;
     availableTags.forEach(({ tag }) => {
       const regex = new RegExp(tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-      highlighted = highlighted.replace(regex, `<span class="text-indigo-700 dark:text-indigo-300 font-bold bg-indigo-100 dark:bg-indigo-900/50 px-1.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-800 shadow-sm">${tag}</span>`);
+      highlighted = highlighted.replace(regex, `<span class="text-orange-700 dark:text-orange-300 font-black bg-orange-100 dark:bg-orange-900/50 px-2 py-0.5 rounded border border-orange-200 dark:border-orange-800 shadow-sm">${tag}</span>`);
     });
     return highlighted.split('\n').map((line, i) => (
       <div key={i} dangerouslySetInnerHTML={{ __html: line || '&nbsp;' }} />
@@ -136,14 +136,14 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
                         </TabsContent>
                     </Tabs>
 
-                     <Alert className="bg-indigo-50 dark:bg-indigo-950/20 border-indigo-100 dark:border-indigo-900">
-                        <Info className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                     <Alert className="bg-orange-50 dark:bg-orange-950/20 border-orange-100 dark:border-orange-900">
+                        <Info className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                         <AlertDescription>
-                            <p className="font-bold mb-3 text-indigo-800 dark:text-indigo-200 text-xs">Variables dinámicas:</p>
+                            <p className="font-bold mb-3 text-orange-800 dark:text-orange-200 text-xs">Variables dinámicas:</p>
                             <ul className="space-y-2 text-xs">
                                 {availableTags.map(t => (
                                     <li key={t.tag} className="flex flex-col gap-1">
-                                        <code className="font-bold text-indigo-700 dark:text-indigo-300 w-fit px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 rounded border border-indigo-200 dark:border-indigo-800">{t.tag}</code>
+                                        <code className="font-bold text-orange-700 dark:text-orange-300 w-fit px-1.5 py-0.5 bg-orange-100 dark:bg-orange-900/50 rounded border border-orange-200 dark:border-orange-800">{t.tag}</code>
                                         <span className="text-muted-foreground italic">{t.description}</span>
                                     </li>
                                 ))}
