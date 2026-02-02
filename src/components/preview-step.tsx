@@ -1,12 +1,16 @@
+
+"use client";
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { GroupedData } from "@/lib/types";
-import { Mail, User, ChevronRight, Info, AlertTriangle } from "lucide-react";
+import { Mail, User, ChevronRight, Info, AlertTriangle, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface PreviewStepProps {
   data: Map<string, GroupedData>;
@@ -27,23 +31,34 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
     { tag: "{{invoices_table}}", description: "Tabla con el detalle de los comprobantes." },
   ];
 
+  const highlightTags = (text: string) => {
+    let highlighted = text;
+    availableTags.forEach(({ tag }) => {
+      const regex = new RegExp(tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+      highlighted = highlighted.replace(regex, `<span class="text-indigo-700 dark:text-indigo-300 font-bold bg-indigo-100 dark:bg-indigo-900/50 px-1.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-800 shadow-sm">${tag}</span>`);
+    });
+    return highlighted.split('\n').map((line, i) => (
+      <div key={i} dangerouslySetInnerHTML={{ __html: line || '&nbsp;' }} />
+    ));
+  };
+
   return (
     <div className="w-full animate-in fade-in-50 duration-500">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold font-headline">Datos Agrupados</h2>
-        <p className="text-muted-foreground mt-2">Se encontraron {data.size} emisores de comprobantes. Revisa los detalles para cada uno.</p>
+        <h2 className="text-3xl font-bold font-headline">Revisión y Personalización</h2>
+        <p className="text-muted-foreground mt-2">Se encontraron {data.size} emisores de comprobantes. Revisa los detalles y personaliza tu correo.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-            <Card>
+            <Card className="overflow-hidden border-2 shadow-md">
                 <Accordion type="single" collapsible className="w-full" defaultValue={dataArray[0]?.recipient.RUC}>
                 {dataArray.map(({ recipient, invoices }, index) => (
                     <AccordionItem key={`${recipient.RUC}-${index}`} value={recipient.RUC} className={index === dataArray.length - 1 ? "border-b-0" : ""}>
-                    <AccordionTrigger className="px-6 py-4 hover:no-underline text-left">
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline text-left hover:bg-muted/50 transition-colors">
                         <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
-                            <User className="h-6 w-6 text-secondary-foreground" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                            <User className="h-6 w-6 text-primary" />
                         </div>
                         <div>
                             <p className="font-semibold text-foreground">{recipient.NOMBRE || invoices[0]?.RAZON_SOCIAL_EMISOR}</p>
@@ -61,8 +76,8 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
                         </div>
                         </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-6 pb-4">
-                        <div className="overflow-x-auto">
+                    <AccordionContent className="px-6 pb-4 bg-muted/20">
+                        <div className="overflow-x-auto rounded-lg border bg-card">
                             <Table>
                                 <TableHeader>
                                 <TableRow>
@@ -76,7 +91,7 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
                                     <TableRow key={`${invoice.SERIE_COMPROBANTE}-${invIndex}`}>
                                     <TableCell className="font-medium">{invoice.TIPO_COMPROBANTE}</TableCell>
                                     <TableCell>{invoice.SERIE_COMPROBANTE}</TableCell>
-                                    <TableCell>{invoice.OBSERVACIONES}</TableCell>
+                                    <TableCell className="text-muted-foreground">{invoice.OBSERVACIONES}</TableCell>
                                     </TableRow>
                                 ))}
                                 </TableBody>
@@ -89,29 +104,47 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
             </Card>
         </div>
         <div>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Personalizar Plantilla de Correo</CardTitle>
+            <Card className="sticky top-8 border-2 shadow-lg">
+                <CardHeader className="border-b bg-muted/50">
+                    <CardTitle className="text-xl font-headline">Plantilla de Correo</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                     <div className="grid w-full gap-1.5">
-                        <Label htmlFor="email-template">Plantilla Base</Label>
-                        <Textarea 
-                            id="email-template"
-                            placeholder="Escribe tu plantilla aquí..." 
-                            className="h-64 font-code text-xs"
-                            value={emailTemplate}
-                            onChange={(e) => onTemplateChange(e.target.value)}
-                        />
-                    </div>
-                     <Alert>
-                        <Info className="h-4 w-4" />
+                <CardContent className="p-6 space-y-4">
+                    <Tabs defaultValue="edit" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-4">
+                            <TabsTrigger value="edit">Editar</TabsTrigger>
+                            <TabsTrigger value="preview">
+                                <Eye className="h-4 w-4 mr-2" />
+                                Vista Previa
+                            </TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="edit" className="space-y-4">
+                            <div className="grid w-full gap-2">
+                                <Label htmlFor="email-template" className="font-bold">Cuerpo del mensaje</Label>
+                                <Textarea 
+                                    id="email-template"
+                                    placeholder="Estimados señores..." 
+                                    className="h-[400px] font-mono text-sm leading-relaxed focus:ring-primary/50"
+                                    value={emailTemplate}
+                                    onChange={(e) => onTemplateChange(e.target.value)}
+                                />
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="preview">
+                            <div className="p-6 bg-secondary/20 rounded-xl border-2 border-dashed min-h-[400px] font-body text-sm whitespace-pre-wrap leading-loose shadow-inner">
+                                {highlightTags(emailTemplate)}
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+
+                     <Alert className="bg-indigo-50 dark:bg-indigo-950/20 border-indigo-100 dark:border-indigo-900">
+                        <Info className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         <AlertDescription>
-                            <p className="font-bold mb-2">Variables disponibles:</p>
-                            <ul className="space-y-1 text-xs">
+                            <p className="font-bold mb-3 text-indigo-800 dark:text-indigo-200 text-xs">Variables dinámicas:</p>
+                            <ul className="space-y-2 text-xs">
                                 {availableTags.map(t => (
-                                    <li key={t.tag}>
-                                        <code className="font-semibold p-1 bg-muted rounded-sm">{t.tag}</code>: {t.description}
+                                    <li key={t.tag} className="flex flex-col gap-1">
+                                        <code className="font-bold text-indigo-700 dark:text-indigo-300 w-fit px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 rounded border border-indigo-200 dark:border-indigo-800">{t.tag}</code>
+                                        <span className="text-muted-foreground italic">{t.description}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -124,8 +157,8 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
 
 
       <div className="mt-8 flex justify-center gap-4">
-        <Button variant="outline" size="lg" onClick={onBack}>Atrás</Button>
-        <Button size="lg" onClick={onNext}>
+        <Button variant="outline" size="lg" onClick={onBack} className="px-8 font-bold">Atrás</Button>
+        <Button size="lg" onClick={onNext} className="px-12 font-bold shadow-lg shadow-primary/20">
           Generar Correos <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
