@@ -180,11 +180,11 @@ export function UploadStep({
               <div className="text-center md:text-left">
                 <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-1">Base de correos cargada</h3>
                 <p className="text-4xl font-black font-headline text-foreground leading-tight">
-                  {recipientsCount} Destinatarios listos
+                  {recipientsCount} Contactos listos
                 </p>
-                <div className="flex flex-col mt-3 text-muted-foreground">
-                   <span className="text-xs uppercase font-bold tracking-widest opacity-70">Última actualización:</span>
-                   <p className="text-2xl sm:text-4xl font-black text-foreground mt-1 uppercase leading-none">
+                <div className="flex flex-col mt-4">
+                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-1">Última actualización</span>
+                   <p className="text-2xl sm:text-4xl lg:text-5xl font-black text-foreground uppercase tracking-tight leading-none">
                       {formattedDate}
                    </p>
                 </div>
@@ -193,7 +193,7 @@ export function UploadStep({
             <div className="flex flex-col sm:flex-row gap-3">
               <Button variant="outline" onClick={onClearRecipients} className="border-2 font-bold hover:bg-destructive hover:text-white transition-all h-12 px-6">
                 <Trash2 className="mr-2 h-4 w-4" />
-                Borrar del navegador
+                Borrar Base
               </Button>
             </div>
           </div>
@@ -226,13 +226,13 @@ export function UploadStep({
           disabled={(recipientsCount === 0 && !recipientFile) || !invoiceFile}
           className="h-16 px-12 text-xl font-black shadow-2xl shadow-primary/20 hover:scale-105 transition-transform"
         >
-          {recipientsCount > 0 ? "Procesar con Base Guardada" : "Procesar Archivos"}
+          {recipientsCount > 0 && !recipientFile ? "Procesar con Base Cargada" : "Procesar Archivos"}
           <ArrowRight className="ml-3 h-6 w-6" />
         </Button>
          {((recipientsCount === 0 && !recipientFile) || !invoiceFile) && (
             <p className="mt-6 text-center font-bold text-muted-foreground flex items-center gap-2">
               <UploadCloud className="h-5 w-5" />
-              Sube los archivos necesarios para desbloquear este paso.
+              Sube los archivos necesarios para continuar.
             </p>
          )}
       </div>

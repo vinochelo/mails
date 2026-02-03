@@ -85,7 +85,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Asegurarse de que el scroll suba al inicio en cada cambio de paso
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
