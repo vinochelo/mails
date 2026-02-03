@@ -67,7 +67,6 @@ export default function Home() {
 
   const STEPS = ["Subir Datos", "Previsualizar", "Generar Correos"];
 
-  // Load from localStorage on mount
   useEffect(() => {
     const savedRecipients = localStorage.getItem("hola_mails_recipients");
     const savedUpdateDate = localStorage.getItem("hola_mails_last_update");
@@ -85,9 +84,8 @@ export default function Home() {
     }
   }, []);
 
-  // Ensures that when changing steps, the page scrolls to the top immediately
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
   const parseFile = <T extends Record<string, any>>(file: File, startRow: number): Promise<T[]> => {
@@ -145,7 +143,6 @@ export default function Home() {
         const parsedRecipients = await parseFile<Recipient>(file, startRow);
         setRecipients(parsedRecipients);
         
-        // Save to localStorage
         const now = new Date().toISOString();
         localStorage.setItem("hola_mails_recipients", JSON.stringify(parsedRecipients));
         localStorage.setItem("hola_mails_last_update", now);
@@ -185,7 +182,7 @@ export default function Home() {
   };
 
   const handleProcess = () => {
-    if (recipients.length === 0 || invoices.length === 0) {
+    if ((recipients.length === 0 && !recipientFile) || invoices.length === 0) {
       toast({
         variant: "destructive",
         title: "Faltan archivos",

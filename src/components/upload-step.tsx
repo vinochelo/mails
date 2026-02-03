@@ -4,7 +4,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { UploadCloud, Users, FileText, ArrowRight, FileCheck, Calendar, Database, Trash2, RefreshCw } from "lucide-react";
+import { UploadCloud, Users, FileText, ArrowRight, FileCheck, Database, Trash2, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -116,7 +116,7 @@ const FileUploader = ({
             onChange={handleFileChange}
           />
         </div>
-        <div className="grid w-full max-w-sm items-center gap-1.5 mt-4">
+        <div className="grid w-full max-sm items-center gap-1.5 mt-4">
           <Label htmlFor={`start-row-${title.replace(/\s+/g, '-')}`}>Fila de inicio de datos</Label>
           <Input 
             type="number" 
@@ -179,17 +179,19 @@ export function UploadStep({
               </div>
               <div className="text-center md:text-left">
                 <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-1">Base de Datos Guardada</h3>
-                <p className="text-3xl font-black font-headline text-foreground leading-tight">
+                <p className="text-4xl font-black font-headline text-foreground leading-tight">
                   {recipientsCount} Destinatarios listos
                 </p>
-                <div className="flex items-center gap-2 mt-2 text-muted-foreground font-medium">
-                  <Calendar className="h-4 w-4" />
-                  <span>Actualizado el: <span className="text-foreground font-bold">{formattedDate}</span></span>
+                <div className="flex flex-col mt-3 text-muted-foreground">
+                   <span className="text-xs uppercase font-bold tracking-widest opacity-70">Última actualización:</span>
+                   <p className="text-2xl sm:text-4xl font-black text-foreground mt-1 uppercase leading-none">
+                      {formattedDate}
+                   </p>
                 </div>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button variant="outline" onClick={onClearRecipients} className="border-2 font-bold hover:bg-destructive hover:text-white transition-all">
+              <Button variant="outline" onClick={onClearRecipients} className="border-2 font-bold hover:bg-destructive hover:text-white transition-all h-12 px-6">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Borrar del navegador
               </Button>

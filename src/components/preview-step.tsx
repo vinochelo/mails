@@ -35,7 +35,6 @@ export function PreviewStep({ data, emailTemplate, onTemplateChange, onNext, onB
     let highlighted = text;
     availableTags.forEach(({ tag }) => {
       const regex = new RegExp(tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-      // Using accent color for tags to distinguish them
       highlighted = highlighted.replace(regex, `<span class="text-accent font-bold bg-accent/10 px-1 py-0.5 rounded border border-accent/20">${tag}</span>`);
     });
     return highlighted.split('\n').map((line, i) => (
