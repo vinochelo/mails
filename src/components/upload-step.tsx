@@ -178,7 +178,7 @@ export function UploadStep({
                 <Database className="h-10 w-10" />
               </div>
               <div className="text-center md:text-left">
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-1">Base de Datos Guardada</h3>
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-1">Base de correos cargada</h3>
                 <p className="text-4xl font-black font-headline text-foreground leading-tight">
                   {recipientsCount} Destinatarios listos
                 </p>
